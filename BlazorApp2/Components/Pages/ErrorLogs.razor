@@ -1,0 +1,291 @@
+@page "/admin/logs"
+@using BlazorApp2.Models
+@using BlazorApp2.Services
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+@inject IErrorLogService ErrorLogService
+@inject IJSRuntime JS
+@rendermode InteractiveServer
+
+<PageTitle>Fehlerprotokoll</PageTitle>
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Fehlerprotokoll</h2>
+            <p class="text-muted mb-0">System-Logs und Fehlermeldungen</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary" @onclick="LoadLogs">
+                <i class="bi bi-arrow-clockwise me-1"></i>Aktualisieren
+            </button>
+            <button class="btn btn-outline-danger" @onclick="ClearOldLogs">
+                <i class="bi bi-trash me-1"></i>Alte Logs löschen
+            </button>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(statusMessage))
+    {
+        <div class="alert @(isError ? "alert-danger" : "alert-success") alert-dismissible fade show">
+            @statusMessage
+            <button type="button" class="btn-close" @onclick="() => statusMessage = null"></button>
+        </div>
+    }
+
+    <div class="row mb-3">
+        <div class="col-md-2">
+            <select class="form-select" @bind="levelFilter">
+                <option value="">Alle Level</option>
+                <option value="Error">Fehler</option>
+                <option value="Warning">Warnung</option>
+                <option value="Info">Info</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <input type="date" class="form-control" @bind="dateFrom" />
+        </div>
+        <div class="col-md-2">
+            <input type="date" class="form-control" @bind="dateTo" />
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-primary" @onclick="ApplyFilters">
+                <i class="bi bi-funnel me-1"></i>Filtern
+            </button>
+        </div>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="d-flex justify-content-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Laden...</span>
+            </div>
+        </div>
+    }
+    else if (logs == null || !logs.Any())
+    {
+        <div class="text-center py-5">
+            <i class="bi bi-check-circle text-success" style="font-size: 4rem;"></i>
+            <h4 class="mt-3">Keine Fehler gefunden</h4>
+            <p class="text-muted">Das System läuft einwandfrei.</p>
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><strong>@logs.Count</strong> Einträge</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 140px;">Zeitpunkt</th>
+                            <th style="width: 80px;">Level</th>
+                            <th style="width: 150px;">Quelle</th>
+                            <th>Nachricht</th>
+                            <th style="width: 100px;">Aktionen</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var log in logs)
+                        {
+                            <tr class="@GetRowClass(log.Level)">
+                                <td class="text-nowrap">
+                                    <small>@log.Timestamp.ToLocalTime().ToString("dd.MM.yy HH:mm:ss")</small>
+                                </td>
+                                <td>
+                                    <span class="badge @GetLevelBadgeClass(log.Level)">
+                                        <i class="bi @GetLevelIcon(log.Level) me-1"></i>@log.Level
+                                    </span>
+                                </td>
+                                <td><code class="small">@log.Source</code></td>
+                                <td>
+                                    @if (log.Message.Length > 80)
+                                    {
+                                        <span>@log.Message.Substring(0, 80)...</span>
+                                    }
+                                    else
+                                    {
+                                        @log.Message
+                                    }
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-info me-1" @onclick="() => ShowDetails(log)" title="Details anzeigen">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    @if (!string.IsNullOrEmpty(log.StackTrace))
+                                    {
+                                        <button class="btn btn-sm btn-outline-secondary" @onclick="() => ShowStackTrace(log)" title="Stack Trace">
+                                            <i class="bi bi-code-slash"></i>
+                                        </button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+
+    @* Details Modal *@
+    @if (selectedLog != null)
+    {
+        <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <span class="badge @GetLevelBadgeClass(selectedLog.Level) me-2">@selectedLog.Level</span>
+                            Fehlerdetails
+                        </h5>
+                        <button type="button" class="btn-close" @onclick="CloseModals"></button>
+                    </div>
+                    <div class="modal-body">
+                        <dl class="row">
+                            <dt class="col-sm-3">Zeitpunkt</dt>
+                            <dd class="col-sm-9">@selectedLog.Timestamp.ToLocalTime().ToString("dd.MM.yyyy HH:mm:ss")</dd>
+                            
+                            <dt class="col-sm-3">Quelle</dt>
+                            <dd class="col-sm-9"><code>@selectedLog.Source</code></dd>
+                            
+                            @if (!string.IsNullOrEmpty(selectedLog.RequestPath))
+                            {
+                                <dt class="col-sm-3">Request</dt>
+                                <dd class="col-sm-9"><code>@selectedLog.RequestPath</code></dd>
+                            }
+                            
+                            @if (selectedLog.DocumentId.HasValue)
+                            {
+                                <dt class="col-sm-3">Dokument-ID</dt>
+                                <dd class="col-sm-9">@selectedLog.DocumentId</dd>
+                            }
+                        </dl>
+                        
+                        <h6>Vollstaendige Nachricht:</h6>
+                        <div class="bg-light p-3 rounded border" style="word-wrap: break-word; white-space: pre-wrap;">
+                            @selectedLog.Message
+                        </div>
+                        
+                        @if (!string.IsNullOrEmpty(selectedLog.StackTrace))
+                        {
+                            <h6 class="mt-3">Stack Trace</h6>
+                            <pre class="bg-dark text-light p-3 rounded" style="max-height: 300px; overflow-y: auto; font-size: 0.75rem;">@selectedLog.StackTrace</pre>
+                        }
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" @onclick="() => CopyToClipboard(selectedLog.Message)">
+                            <i class="bi bi-clipboard me-1"></i>Kopieren
+                        </button>
+                        <button type="button" class="btn btn-secondary" @onclick="CloseModals">Schliessen</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private List<ErrorLog>? logs;
+    private bool isLoading = true;
+    private string? levelFilter;
+    private DateTime? dateFrom;
+    private DateTime? dateTo;
+    private ErrorLog? selectedLog;
+    private string? statusMessage;
+    private bool isError;
+
+    protected override async Task OnInitializedAsync()
+    {
+        dateFrom = DateTime.Today.AddDays(-7);
+        dateTo = DateTime.Today;
+        await LoadLogs();
+    }
+
+    private async Task LoadLogs()
+    {
+        isLoading = true;
+        logs = await ErrorLogService.GetRecentErrorsAsync(100);
+        
+        if (!string.IsNullOrEmpty(levelFilter))
+        {
+            logs = logs.Where(l => l.Level == levelFilter).ToList();
+        }
+        
+        isLoading = false;
+    }
+
+    private async Task ApplyFilters()
+    {
+        isLoading = true;
+        
+        if (dateFrom.HasValue && dateTo.HasValue)
+        {
+            logs = await ErrorLogService.GetErrorsByDateRangeAsync(dateFrom.Value, dateTo.Value.AddDays(1));
+        }
+        else
+        {
+            logs = await ErrorLogService.GetRecentErrorsAsync(100);
+        }
+        
+        if (!string.IsNullOrEmpty(levelFilter))
+        {
+            logs = logs.Where(l => l.Level == levelFilter).ToList();
+        }
+        
+        isLoading = false;
+    }
+
+    private async Task ClearOldLogs()
+    {
+        var count = await ErrorLogService.ClearOldLogsAsync(30);
+        statusMessage = $"{count} alte Logs wurden gelöscht.";
+        isError = false;
+        await LoadLogs();
+    }
+
+    private void ShowDetails(ErrorLog log)
+    {
+        selectedLog = log;
+    }
+
+    private void ShowStackTrace(ErrorLog log)
+    {
+        selectedLog = log;
+    }
+
+    private void CloseModals()
+    {
+        selectedLog = null;
+    }
+
+    private async Task CopyToClipboard(string text)
+    {
+        await JS.InvokeVoidAsync("navigator.clipboard.writeText", text);
+    }
+
+    private string GetLevelBadgeClass(string level) => level switch
+    {
+        "Error" => "bg-danger",
+        "Warning" => "bg-warning text-dark",
+        "Info" => "bg-info text-dark",
+        _ => "bg-secondary"
+    };
+
+    private string GetLevelIcon(string level) => level switch
+    {
+        "Error" => "bi-x-circle-fill",
+        "Warning" => "bi-exclamation-triangle-fill",
+        "Info" => "bi-info-circle-fill",
+        _ => "bi-circle"
+    };
+
+    private string GetRowClass(string level) => level switch
+    {
+        "Error" => "table-danger",
+        "Warning" => "table-warning",
+        _ => ""
+    };
+}

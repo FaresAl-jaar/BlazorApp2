@@ -1,0 +1,70 @@
+﻿<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">
+            <i class="bi bi-file-earmark-pdf-fill me-2"></i>PDF-Manager
+        </a>
+    </div>
+</div>
+
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+    <nav class="nav flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="bi bi-speedometer2" aria-hidden="true"></span> Dashboard
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="documents">
+                <span class="bi bi-folder2-open" aria-hidden="true"></span> Dokumente
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="history">
+                <span class="bi bi-clock-history" aria-hidden="true"></span> Historie
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3 mt-3 sidebar-heading">
+            <small class="fw-bold text-uppercase">Administration</small>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="admin/users">
+                <span class="bi bi-people-fill" aria-hidden="true"></span> Benutzer
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="admin/logs">
+                <span class="bi bi-exclamation-triangle-fill" aria-hidden="true"></span> Fehlerlog
+            </NavLink>
+        </div>
+        
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="admin/ocr-config">
+                <span class="bi bi-gear-wide-connected" aria-hidden="true"></span> Analyse Konfig
+            </NavLink>
+        </div>
+        
+        <div class="nav-item px-3 mt-3 sidebar-heading">
+            <small class="fw-bold text-uppercase">Konto</small>
+        </div>
+        
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="profile">
+                <span class="bi bi-person-circle" aria-hidden="true"></span> Mein Profil
+            </NavLink>
+        </div>
+        
+        <div class="nav-item px-3">
+            <a class="nav-link text-danger" href="/Auth/logout">
+                <span class="bi bi-box-arrow-right" aria-hidden="true"></span> Abmelden
+            </a>
+        </div>
+    </nav>
+</div>
+

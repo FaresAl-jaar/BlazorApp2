@@ -1,0 +1,522 @@
+@page "/documents"
+@using BlazorApp2.Models
+@using BlazorApp2.Models.DTOs
+@using BlazorApp2.Services
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
+@using System.IO.Compression
+@attribute [Authorize]
+@inject IDocumentService DocumentService
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthStateProvider
+@inject UserManager<ApplicationUser> UserManager
+@inject IJSRuntime JS
+@rendermode InteractiveServer
+
+<PageTitle>Dokumentenübersicht</PageTitle>
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="bi bi-file-earmark-pdf me-2"></i>Dokumentenübersicht</h2>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(statusMessage))
+    {
+        <div class="alert @(isError ? "alert-danger" : "alert-success") alert-dismissible fade show">
+            @statusMessage
+            <button type="button" class="btn-close" @onclick="() => statusMessage = null"></button>
+        </div>
+    }
+
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label class="form-label">Status filtern:</label>
+            <select class="form-select" @onchange="OnStatusFilterChanged">
+                <option value="">Alle</option>
+                @foreach (var status in Enum.GetValues<DocumentStatus>())
+                {
+                    <option value="@status">@GetStatusDisplayName(status)</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Dateiname suchen:</label>
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Dateiname eingeben..." 
+                       @bind="searchTerm" @bind:event="oninput" @onkeyup="OnSearchKeyUp" />
+                <button class="btn btn-outline-secondary" type="button" @onclick="ClearSearch" title="Suche löschen">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+        </div>
+        <div class="col-md-4 text-end align-self-end">
+            <div class="btn-group me-2" @onfocusout="CloseDropdown">
+                <button class="btn btn-outline-success dropdown-toggle" type="button" @onclick="ToggleDropdown" @onclick:stopPropagation="true" disabled="@isDownloading">
+                    @if (isDownloading)
+                    {
+                        <span class="spinner-border spinner-border-sm me-1"></span>
+                    }
+                    <i class="bi bi-download me-1"></i>JSON Export
+                </button>
+                @if (showExportDropdown)
+                {
+                    <ul class="dropdown-menu show" style="position: absolute; right: 0; top: 100%;">
+                        <li><a class="dropdown-item" href="#" @onclick="DownloadAllJsonAsZip" @onclick:preventDefault><i class="bi bi-file-zip me-2"></i>Alle als ZIP</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><h6 class="dropdown-header">Gefilterte Dokumente</h6></li>
+                        <li><a class="dropdown-item" href="#" @onclick="DownloadFilteredJsonAsZip" @onclick:preventDefault><i class="bi bi-funnel me-2"></i>Gefilterte als ZIP (@(filteredDocuments?.Count ?? 0))</a></li>
+                    </ul>
+                }
+            </div>
+            <button class="btn btn-outline-primary" @onclick="LoadDocuments">
+                <i class="bi bi-arrow-clockwise me-1"></i>Aktualisieren
+            </button>
+        </div>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Laden...</span>
+            </div>
+        </div>
+    }
+    else if (filteredDocuments == null || filteredDocuments.Count == 0)
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>Keine Dokumente gefunden.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Externe ID</th>
+                        <th>Dateiname</th>
+                        <th>Empfangen am</th>
+                        <th>Status</th>
+                        <th>Bearbeiter</th>
+                        <th>Daten</th>
+                        <th>Aktionen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var doc in filteredDocuments)
+                    {
+                        <tr class="@(doc.ClaimedByUserId == currentUserId ? "table-primary" : "")">
+                            <td>@doc.Id</td>
+                            <td><code>@doc.ExternalId</code></td>
+                            <td>@doc.FileName</td>
+                            <td>@doc.ReceivedAt.ToString("dd.MM.yyyy HH:mm")</td>
+                            <td>
+                                <span class="badge @GetStatusBadgeClass(doc.Status)">
+                                    @GetStatusDisplayName(doc.Status)
+                                </span>
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(doc.ClaimedByUserName))
+                                {
+                                    <span class="badge bg-info">
+                                        <i class="bi bi-person-check me-1"></i>@doc.ClaimedByUserName
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">-</span>
+                                }
+                            </td>
+                            <td>
+                                @if (doc.HasExtractedData)
+                                {
+                                    <span class="badge bg-success me-1"><i class="bi bi-check-circle"></i> Vorhanden</span>
+                                    <button class="btn btn-sm btn-outline-success" @onclick="() => DownloadSingleJson(doc)" title="JSON herunterladen">
+                                        <i class="bi bi-download"></i>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary"><i class="bi bi-dash-circle"></i> Fehlt</span>
+                                }
+                            </td>
+                            <td>
+                                @if (string.IsNullOrEmpty(doc.ClaimedByUserId))
+                                {
+                                    <button class="btn btn-sm btn-success me-1" @onclick="() => ClaimDocument(doc)" title="Übernehmen">
+                                        <i class="bi bi-hand-index"></i>
+                                    </button>
+                                }
+                                else if (doc.ClaimedByUserId == currentUserId)
+                                {
+                                    <button class="btn btn-sm btn-warning me-1" @onclick="() => UnclaimDocument(doc)" title="Freigeben">
+                                        <i class="bi bi-hand-index-fill"></i>
+                                    </button>
+                                }
+                                
+                                @if (CanEdit(doc))
+                                {
+                                    <button class="btn btn-sm btn-primary me-1" @onclick="() => OpenDocument(doc.Id)" title="Bearbeiten">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-sm btn-outline-secondary me-1" @onclick="() => OpenDocument(doc.Id)" title="Ansehen (nur lesen)">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                }
+                                
+                                <button class="btn btn-sm btn-outline-danger" @onclick="() => ConfirmDelete(doc)" title="Löschen">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    @* Delete Confirmation Modal *@
+    @if (showDeleteConfirm && documentToDelete != null)
+    {
+        <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i>Dokument löschen</h5>
+                        <button type="button" class="btn-close btn-close-white" @onclick="CancelDelete"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Möchten Sie das Dokument <strong>@documentToDelete.FileName</strong> wirklich löschen?</p>
+                        
+                        @if (documentToDelete.HasExtractedData)
+                        {
+                            <div class="alert alert-warning">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                Dieses Dokument enthält extrahierte JSON-Daten.
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" @bind="deleteJsonAlso" id="deleteJson">
+                                <label class="form-check-label" for="deleteJson">
+                                    Auch JSON-Daten löschen
+                                </label>
+                            </div>
+                        }
+                        
+                        <p class="text-muted mt-2"><small>Diese Aktion kann nicht rückgängig gemacht werden.</small></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="CancelDelete">Abbrechen</button>
+                        <button type="button" class="btn btn-danger" @onclick="DeleteConfirmed">
+                            <i class="bi bi-trash me-1"></i>Löschen
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+private List<DocumentListItemDto>? documents;
+private DocumentStatus? selectedStatus;
+private bool isLoading = true;
+private bool isDownloading;
+private bool showDeleteConfirm;
+private bool showExportDropdown;
+private DocumentListItemDto? documentToDelete;
+private bool deleteJsonAlso = true;
+private string searchTerm = string.Empty;
+private string? currentUserId;
+private string? currentUserName;
+private string? statusMessage;
+private bool isError;
+
+    private void ToggleDropdown()
+    {
+        showExportDropdown = !showExportDropdown;
+    }
+
+    private void CloseDropdown()
+    {
+        // Delay to allow click events to process
+        _ = Task.Delay(200).ContinueWith(_ => 
+        {
+            showExportDropdown = false;
+            InvokeAsync(StateHasChanged);
+        });
+    }
+
+    private List<DocumentListItemDto> filteredDocuments => 
+        string.IsNullOrWhiteSpace(searchTerm) 
+            ? documents ?? new() 
+            : (documents ?? new()).Where(d => 
+                d.FileName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                d.ExternalId.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
+            ).ToList();
+
+    private bool CanEdit(DocumentListItemDto doc) =>
+        string.IsNullOrEmpty(doc.ClaimedByUserId) || doc.ClaimedByUserId == currentUserId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCurrentUser();
+        await LoadDocuments();
+    }
+
+    private async Task LoadCurrentUser()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var userName = authState.User.Identity?.Name;
+        if (!string.IsNullOrEmpty(userName))
+        {
+            var user = await UserManager.FindByNameAsync(userName);
+            if (user != null)
+            {
+                currentUserId = user.Id;
+                currentUserName = user.FullName ?? user.UserName;
+            }
+        }
+    }
+
+    private async Task LoadDocuments()
+    {
+        isLoading = true;
+        documents = await DocumentService.GetDocumentsAsync(selectedStatus);
+        isLoading = false;
+    }
+
+    private async Task ClaimDocument(DocumentListItemDto doc)
+    {
+        if (currentUserId == null) return;
+        
+        var success = await DocumentService.ClaimDocumentAsync(doc.Id, currentUserId, currentUserName ?? "Unbekannt");
+        if (success)
+        {
+            statusMessage = $"Dokument '{doc.FileName}' wurde übernommen.";
+            isError = false;
+            await LoadDocuments();
+        }
+        else
+        {
+            statusMessage = "Dokument konnte nicht übernommen werden (bereits von jemand anderem übernommen).";
+            isError = true;
+        }
+    }
+
+    private async Task UnclaimDocument(DocumentListItemDto doc)
+    {
+        if (currentUserId == null) return;
+        
+        var success = await DocumentService.UnclaimDocumentAsync(doc.Id, currentUserId);
+        if (success)
+        {
+            statusMessage = $"Dokument '{doc.FileName}' wurde freigegeben.";
+            isError = false;
+            await LoadDocuments();
+        }
+        else
+        {
+            statusMessage = "Dokument konnte nicht freigegeben werden.";
+            isError = true;
+        }
+    }
+
+    private async Task OnStatusFilterChanged(ChangeEventArgs e)
+    {
+        var value = e.Value?.ToString();
+        if (string.IsNullOrEmpty(value))
+        {
+            selectedStatus = null;
+        }
+        else if (Enum.TryParse<DocumentStatus>(value, out var status))
+        {
+            selectedStatus = status;
+        }
+        await LoadDocuments();
+    }
+
+    private void OnSearchKeyUp(KeyboardEventArgs e)
+    {
+        // Trigger re-render on each keystroke
+        StateHasChanged();
+    }
+
+    private void ClearSearch()
+    {
+        searchTerm = string.Empty;
+    }
+
+    private void ConfirmDelete(DocumentListItemDto doc)
+    {
+        documentToDelete = doc;
+        deleteJsonAlso = true;
+        showDeleteConfirm = true;
+    }
+
+    private void CancelDelete()
+    {
+        showDeleteConfirm = false;
+        documentToDelete = null;
+    }
+
+    private async Task DeleteConfirmed()
+    {
+        if (documentToDelete != null)
+        {
+            await DocumentService.DeleteDocumentAsync(documentToDelete.Id);
+            await LoadDocuments();
+        }
+        CancelDelete();
+    }
+
+    private void OpenDocument(int id)
+    {
+        Navigation.NavigateTo($"/document/{id}");
+    }
+
+    private string GetStatusDisplayName(DocumentStatus status) => status switch
+    {
+        DocumentStatus.Received => "Empfangen",
+        DocumentStatus.Processing => "In Bearbeitung",
+        DocumentStatus.Extracted => "Extrahiert",
+        DocumentStatus.PendingReview => "Prüfung ausstehend",
+        DocumentStatus.Reviewed => "Geprüft",
+        DocumentStatus.Submitted => "Übermittelt",
+        DocumentStatus.Error => "Fehler",
+        _ => status.ToString()
+    };
+
+    private string GetStatusBadgeClass(DocumentStatus status) => status switch
+    {
+        DocumentStatus.Received => "bg-info",
+        DocumentStatus.Processing => "bg-warning text-dark",
+        DocumentStatus.Extracted => "bg-primary",
+        DocumentStatus.PendingReview => "bg-warning text-dark",
+        DocumentStatus.Reviewed => "bg-success",
+        DocumentStatus.Submitted => "bg-success",
+        DocumentStatus.Error => "bg-danger",
+        _ => "bg-secondary"
+    };
+
+    private async Task DownloadSingleJson(DocumentListItemDto doc)
+    {
+        try
+        {
+            var extractedData = await DocumentService.GetExtractedDataAsync(doc.Id);
+            if (extractedData == null || string.IsNullOrEmpty(extractedData.JsonContent))
+            {
+                statusMessage = $"Keine JSON-Daten für '{doc.FileName}' gefunden.";
+                isError = true;
+                return;
+            }
+
+            var fileName = Path.GetFileNameWithoutExtension(doc.FileName) + ".json";
+            var bytes = System.Text.Encoding.UTF8.GetBytes(extractedData.JsonContent);
+            var base64 = Convert.ToBase64String(bytes);
+
+            await JS.InvokeVoidAsync("eval", $@"
+                var link = document.createElement('a');
+                link.download = '{fileName}';
+                link.href = 'data:application/json;base64,{base64}';
+                link.click();
+            ");
+
+            statusMessage = $"JSON für '{doc.FileName}' heruntergeladen.";
+            isError = false;
+        }
+        catch (Exception ex)
+        {
+            statusMessage = $"Fehler beim Download: {ex.Message}";
+            isError = true;
+        }
+    }
+
+    private async Task DownloadAllJsonAsZip()
+    {
+        showExportDropdown = false;
+        await DownloadJsonsAsZip(documents ?? new List<DocumentListItemDto>(), "alle_dokumente");
+    }
+
+    private async Task DownloadFilteredJsonAsZip()
+    {
+        showExportDropdown = false;
+        await DownloadJsonsAsZip(filteredDocuments, "gefilterte_dokumente");
+    }
+
+    private async Task DownloadJsonsAsZip(List<DocumentListItemDto> docs, string zipNamePrefix)
+    {
+        if (docs == null || docs.Count == 0)
+        {
+            statusMessage = "Keine Dokumente zum Herunterladen.";
+            isError = true;
+            return;
+        }
+
+        var docsWithData = docs.Where(d => d.HasExtractedData).ToList();
+        if (docsWithData.Count == 0)
+        {
+            statusMessage = "Keine Dokumente mit extrahierten Daten vorhanden.";
+            isError = true;
+            return;
+        }
+
+        isDownloading = true;
+        StateHasChanged();
+        await Task.Delay(50); // UI aktualisieren lassen
+
+        try
+        {
+            using var memoryStream = new MemoryStream();
+            using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
+            {
+                foreach (var doc in docsWithData)
+                {
+                    try
+                    {
+                        var extractedData = await DocumentService.GetExtractedDataAsync(doc.Id);
+                        if (extractedData != null && !string.IsNullOrEmpty(extractedData.JsonContent))
+                        {
+                            var fileName = Path.GetFileNameWithoutExtension(doc.FileName) + ".json";
+                            var entry = archive.CreateEntry(fileName, CompressionLevel.Fastest);
+                            using var entryStream = entry.Open();
+                            var jsonBytes = System.Text.Encoding.UTF8.GetBytes(extractedData.JsonContent);
+                            await entryStream.WriteAsync(jsonBytes);
+                        }
+                    }
+                    catch
+                    {
+                        // Skip fehlerhafte Dokumente
+                        continue;
+                    }
+                }
+            }
+
+            var zipBytes = memoryStream.ToArray();
+            var zipFileName = $"{zipNamePrefix}_{DateTime.Now:yyyyMMdd_HHmmss}.zip";
+
+            // Blob-basierter Download (stabiler für große Dateien)
+            await JS.InvokeVoidAsync("downloadFileFromBytes", zipFileName, zipBytes);
+
+            statusMessage = $"{docsWithData.Count} JSON-Dateien als ZIP heruntergeladen.";
+            isError = false;
+        }
+        catch (Exception ex)
+        {
+            statusMessage = $"Fehler beim Erstellen der ZIP-Datei: {ex.Message}";
+            isError = true;
+        }
+        finally
+        {
+            isDownloading = false;
+            StateHasChanged();
+        }
+    }
+}

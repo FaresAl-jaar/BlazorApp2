@@ -1,0 +1,303 @@
+@page "/document/{Id:int}"
+@using BlazorApp2.Models
+@using BlazorApp2.Services
+@using System.Text.Json
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject IDocumentService DocumentService
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+@rendermode InteractiveServer
+
+<PageTitle>Dokument bearbeiten</PageTitle>
+
+<div class="container-fluid">
+    @if (isLoading)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Laden...</span>
+            </div>
+        </div>
+    }
+    else if (document == null)
+    {
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle me-2"></i>Dokument nicht gefunden.
+        </div>
+        <button class="btn btn-secondary" @onclick="GoBack">
+            <i class="bi bi-arrow-left me-1"></i>Zurück
+        </button>
+    }
+    else
+    {
+        <div class="row mb-3">
+            <div class="col">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/documents">Dokumente</a></li>
+                        <li class="breadcrumb-item active">@document.FileName</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-8">
+                <h3><i class="bi bi-file-earmark-pdf me-2"></i>@document.FileName</h3>
+                <p class="text-muted">
+                    Externe ID: <code>@document.ExternalId</code> |
+                    Empfangen: @document.ReceivedAt.ToString("dd.MM.yyyy HH:mm") |
+                    Status: <span class="badge @GetStatusBadgeClass(document.Status)">@GetStatusDisplayName(document.Status)</span>
+                </p>
+            </div>
+            <div class="col-md-4 text-end">
+                <button class="btn btn-outline-secondary me-2" @onclick="GoBack">
+                    <i class="bi bi-arrow-left"></i> Zurück
+                </button>
+                <button class="btn btn-success me-2" @onclick="SaveData" disabled="@(!hasChanges)">
+                    <i class="bi bi-save"></i> Speichern
+                </button>
+                <button class="btn btn-primary" @onclick="SubmitData" disabled="@(document.Status == DocumentStatus.Submitted)">
+                    <i class="bi bi-send"></i> Übermitteln
+                </button>
+            </div>
+        </div>
+
+        @if (document.Status != DocumentStatus.Submitted && !string.IsNullOrEmpty(extractedData?.JsonContent))
+        {
+            <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                <strong>Achtung:</strong> Die JSON-Daten wurden noch nicht an die externe API übermittelt.
+                <button class="btn btn-sm btn-warning ms-3" @onclick="SubmitData">
+                    <i class="bi bi-send me-1"></i>Jetzt übermitteln
+                </button>
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(statusMessage))
+        {
+            <div class="alert @(isError ? "alert-danger" : "alert-success") alert-dismissible fade show">
+                @statusMessage
+                <button type="button" class="btn-close" @onclick="() => statusMessage = null"></button>
+            </div>
+        }
+
+        <div class="row" style="height: calc(100vh - 250px);">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <i class="bi bi-file-pdf me-2"></i>PDF-Vorschau
+                    </div>
+                    <div class="card-body p-0">
+                        <iframe src="/api/documents/@Id/pdf" 
+                                style="width: 100%; height: 100%; border: none;">
+                        </iframe>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="bi bi-braces me-2"></i>Extrahierte Daten (JSON)</span>
+                        <div>
+                            <button class="btn btn-sm btn-outline-secondary me-1" @onclick="FormatJson">
+                                <i class="bi bi-code-square"></i> Formatieren
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" @onclick="ValidateJson">
+                                <i class="bi bi-check-circle"></i> Validieren
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <textarea class="form-control h-100 font-monospace" 
+                                  style="resize: none; border: none; border-radius: 0;"
+                                  @bind="jsonContent"
+                                  @bind:event="oninput"
+                                  @onchange="OnJsonChanged"></textarea>
+                    </div>
+                    @if (!string.IsNullOrEmpty(jsonValidationError))
+                    {
+                        <div class="card-footer text-danger">
+                            <i class="bi bi-exclamation-triangle me-1"></i>@jsonValidationError
+                        </div>
+                    }
+                    @if (extractedData != null)
+                    {
+                        <div class="card-footer text-muted">
+                            Version: @extractedData.Version |
+                            Letzte Änderung: @(extractedData.LastModifiedAt?.ToString("dd.MM.yyyy HH:mm") ?? "N/A")
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private PdfDocument? document;
+    private ExtractedData? extractedData;
+    private string jsonContent = "{}";
+    private string originalJsonContent = "{}";
+    private bool isLoading = true;
+    private bool hasChanges;
+    private string? statusMessage;
+    private bool isError;
+    private string? jsonValidationError;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDocument();
+    }
+
+    private async Task LoadDocument()
+    {
+        isLoading = true;
+        document = await DocumentService.GetDocumentByIdAsync(Id);
+        
+        if (document != null)
+        {
+            extractedData = await DocumentService.GetExtractedDataAsync(Id);
+            if (extractedData != null)
+            {
+                jsonContent = extractedData.JsonContent;
+                originalJsonContent = jsonContent;
+            }
+            else
+            {
+                jsonContent = GetDefaultJsonTemplate();
+                originalJsonContent = jsonContent;
+            }
+        }
+        
+        isLoading = false;
+    }
+
+    private string GetDefaultJsonTemplate()
+    {
+        var template = new
+        {
+            dokumentNummer = "",
+            datum = DateTime.Now.ToString("yyyy-MM-dd"),
+            absender = new { name = "", adresse = "" },
+            empfaenger = new { name = "", adresse = "" },
+            positionen = new[] { new { beschreibung = "", menge = 0, preis = 0.0m } },
+            gesamtbetrag = 0.0m,
+            bemerkungen = ""
+        };
+
+        return JsonSerializer.Serialize(template, new JsonSerializerOptions { WriteIndented = true });
+    }
+
+    private void OnJsonChanged()
+    {
+        hasChanges = jsonContent != originalJsonContent;
+        ValidateJson();
+    }
+
+    private void FormatJson()
+    {
+        try
+        {
+            var doc = JsonDocument.Parse(jsonContent);
+            jsonContent = JsonSerializer.Serialize(doc, new JsonSerializerOptions { WriteIndented = true });
+            jsonValidationError = null;
+        }
+        catch (JsonException ex)
+        {
+            jsonValidationError = $"JSON-Formatierungsfehler: {ex.Message}";
+        }
+    }
+
+    private void ValidateJson()
+    {
+        try
+        {
+            JsonDocument.Parse(jsonContent);
+            jsonValidationError = null;
+        }
+        catch (JsonException ex)
+        {
+            jsonValidationError = $"Ungültiges JSON: {ex.Message}";
+        }
+    }
+
+    private async Task SaveData()
+    {
+        if (!string.IsNullOrEmpty(jsonValidationError))
+        {
+            statusMessage = "JSON ist ungültig. Bitte korrigieren Sie die Fehler.";
+            isError = true;
+            return;
+        }
+
+        var success = await DocumentService.SaveExtractedDataAsync(Id, jsonContent, null);
+        
+        if (success)
+        {
+            statusMessage = "Daten erfolgreich gespeichert.";
+            isError = false;
+            originalJsonContent = jsonContent;
+            hasChanges = false;
+            await LoadDocument();
+        }
+        else
+        {
+            statusMessage = "Fehler beim Speichern der Daten.";
+            isError = true;
+        }
+    }
+
+    private async Task SubmitData()
+    {
+        if (hasChanges)
+        {
+            statusMessage = "Bitte speichern Sie zuerst Ihre Änderungen.";
+            isError = true;
+            return;
+        }
+
+        var result = await DocumentService.SubmitToExternalApiAsync(Id);
+        
+        statusMessage = result.Message;
+        isError = !result.Success;
+
+        if (result.Success)
+        {
+            await LoadDocument();
+        }
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/documents");
+    }
+
+    private string GetStatusDisplayName(DocumentStatus status) => status switch
+    {
+        DocumentStatus.Received => "Empfangen",
+        DocumentStatus.Processing => "In Bearbeitung",
+        DocumentStatus.Extracted => "Extrahiert",
+        DocumentStatus.PendingReview => "Prüfung ausstehend",
+        DocumentStatus.Reviewed => "Geprüft",
+        DocumentStatus.Submitted => "Übermittelt",
+        DocumentStatus.Error => "Fehler",
+        _ => status.ToString()
+    };
+
+    private string GetStatusBadgeClass(DocumentStatus status) => status switch
+    {
+        DocumentStatus.Received => "bg-info",
+        DocumentStatus.Processing => "bg-warning text-dark",
+        DocumentStatus.Extracted => "bg-primary",
+        DocumentStatus.PendingReview => "bg-warning text-dark",
+        DocumentStatus.Reviewed => "bg-success",
+        DocumentStatus.Submitted => "bg-success",
+        DocumentStatus.Error => "bg-danger",
+        _ => "bg-secondary"
+    };
+}

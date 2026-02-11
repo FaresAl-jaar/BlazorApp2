@@ -1,0 +1,528 @@
+@page "/admin/users"
+@using BlazorApp2.Models
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Components.Authorization
+@attribute [Authorize(Roles = "Admin")]
+@inject UserManager<ApplicationUser> UserManager
+@inject RoleManager<IdentityRole> RoleManager
+@inject AuthenticationStateProvider AuthStateProvider
+@rendermode InteractiveServer
+
+<PageTitle>Benutzerverwaltung</PageTitle>
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="bi bi-people me-2"></i>Benutzerverwaltung</h2>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-primary" @onclick="ShowAddUserModal">
+                <i class="bi bi-person-plus me-1"></i>Neuer Benutzer
+            </button>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(statusMessage))
+    {
+        <div class="alert @(isError ? "alert-danger" : "alert-success") alert-dismissible fade show">
+            @statusMessage
+            <button type="button" class="btn-close" @onclick="() => statusMessage = null"></button>
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Benutzername</th>
+                        <th>Name</th>
+                        <th>E-Mail</th>
+                        <th>Status</th>
+                        <th>Rolle</th>
+                        <th>Erstellt am</th>
+                        <th>Letzter Login</th>
+                        <th>Aktionen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in users)
+                    {
+                        <tr class="@(!user.IsApproved ? "table-warning" : "")">
+                            <td>@user.UserName</td>
+                            <td>@user.FullName</td>
+                            <td>@user.Email</td>
+                            <td>
+                                @if (user.IsApproved)
+                                {
+                                    <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Genehmigt</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark"><i class="bi bi-clock me-1"></i>Ausstehend</span>
+                                }
+                            </td>
+                            <td>
+                                @if (userRoles.TryGetValue(user.Id, out var roles))
+                                {
+                                    @foreach (var role in roles)
+                                    {
+                                        <span class="badge @(role == "Admin" ? "bg-danger" : "bg-secondary") me-1">@role</span>
+                                    }
+                                }
+                                @if (user.IsMainAdmin)
+                                {
+                                    <span class="badge bg-warning text-dark ms-1"><i class="bi bi-shield-fill"></i> Haupt</span>
+                                }
+                            </td>
+                            <td>@user.CreatedAt.ToString("dd.MM.yyyy")</td>
+                            <td>@(user.LastLoginAt?.ToString("dd.MM.yyyy HH:mm") ?? "-")</td>
+                            <td>
+                                @if (!user.IsMainAdmin)
+                                {
+                                    @if (!user.IsApproved)
+                                    {
+                                        <button class="btn btn-sm btn-success me-1" @onclick="() => ApproveUser(user)" title="Genehmigen">
+                                            <i class="bi bi-check-lg"></i>
+                                        </button>
+                                    }
+                                    @if (isCurrentUserMainAdmin)
+                                    {
+                                        <button class="btn btn-sm btn-outline-secondary me-1" @onclick="() => ShowEditUserModal(user)" title="Benutzer bearbeiten">
+                                            <i class="bi bi-gear"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => ShowEditRoleModal(user)" title="Rolle ändern">
+                                            <i class="bi bi-shield"></i>
+                                        </button>
+                                    }
+                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => ConfirmDeleteUser(user)" title="Löschen">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <span class="text-muted"><i class="bi bi-lock"></i> Geschützt</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    @* Delete Confirmation Modal *@
+    @if (showDeleteConfirm)
+    {
+        <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i>Benutzer löschen</h5>
+                        <button type="button" class="btn-close btn-close-white" @onclick="() => showDeleteConfirm = false"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Möchten Sie den Benutzer <strong>@userToDelete?.UserName</strong> wirklich löschen?</p>
+                        <p class="text-muted">Diese Aktion kann nicht rückgängig gemacht werden.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="() => showDeleteConfirm = false">Abbrechen</button>
+                        <button type="button" class="btn btn-danger" @onclick="DeleteUserConfirmed">
+                            <i class="bi bi-trash me-1"></i>Löschen
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    @* Edit Role Modal *@
+    @if (showEditRoleModal)
+    {
+        <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Rolle ändern: @userToEdit?.UserName</h5>
+                        <button type="button" class="btn-close" @onclick="() => showEditRoleModal = false"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Neue Rolle</label>
+                            <select class="form-select" @bind="newRole">
+                                <option value="User">Benutzer</option>
+                                <option value="Admin">Administrator</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="() => showEditRoleModal = false">Abbrechen</button>
+                        <button type="button" class="btn btn-primary" @onclick="UpdateUserRole">
+                            <i class="bi bi-check me-1"></i>Speichern
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    @* Edit User Modal (Only Main Admin) *@
+    @if (showEditUserModal && userToEdit != null)
+    {
+        <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title"><i class="bi bi-person-gear me-2"></i>Benutzer bearbeiten: @userToEdit.UserName</h5>
+                        <button type="button" class="btn-close" @onclick="() => showEditUserModal = false"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Benutzername</label>
+                            <input type="text" class="form-control" @bind="editUserName" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Vollständiger Name</label>
+                            <input type="text" class="form-control" @bind="editFullName" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">E-Mail</label>
+                            <input type="email" class="form-control" @bind="editEmail" />
+                        </div>
+                        <hr />
+                        <div class="mb-3">
+                            <label class="form-label">Neues Passwort (leer lassen um nicht zu ändern)</label>
+                            <input type="password" class="form-control" @bind="editNewPassword" placeholder="Neues Passwort" />
+                            <small class="text-muted">Mind. 6 Zeichen, 1 Großbuchstabe, 1 Zahl</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="() => showEditUserModal = false">Abbrechen</button>
+                        <button type="button" class="btn btn-primary" @onclick="UpdateUserDetails">
+                            <i class="bi bi-check me-1"></i>Speichern
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (showAddModal)
+    {
+        <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Neuer Benutzer</h5>
+                        <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Benutzername</label>
+                            <input type="text" class="form-control" @bind="newUser.UserName" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Vollständiger Name</label>
+                            <input type="text" class="form-control" @bind="newUser.FullName" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">E-Mail</label>
+                            <input type="email" class="form-control" @bind="newUser.Email" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Passwort</label>
+                            <input type="password" class="form-control" @bind="newUserPassword" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Rolle</label>
+                            <select class="form-select" @bind="selectedRole">
+                                <option value="User">Benutzer</option>
+                                <option value="Admin">Administrator</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="CloseModal">Abbrechen</button>
+                        <button type="button" class="btn btn-primary" @onclick="CreateUser">Erstellen</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+private List<ApplicationUser> users = new();
+private Dictionary<string, List<string>> userRoles = new();
+private bool showAddModal;
+private bool showDeleteConfirm;
+private bool showEditRoleModal;
+private bool showEditUserModal;
+private ApplicationUser newUser = new();
+private ApplicationUser? userToDelete;
+private ApplicationUser? userToEdit;
+private string newUserPassword = string.Empty;
+private string selectedRole = "User";
+private string newRole = "User";
+private string? statusMessage;
+private bool isError;
+private bool isCurrentUserMainAdmin;
+private string? currentUserId;
+    
+// Edit user fields
+private string editUserName = string.Empty;
+private string editFullName = string.Empty;
+private string editEmail = string.Empty;
+private string editNewPassword = string.Empty;
+
+protected override async Task OnInitializedAsync()
+{
+    await CheckCurrentUserPermissions();
+    await LoadUsers();
+}
+
+private async Task CheckCurrentUserPermissions()
+{
+    var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+    var userName = authState.User.Identity?.Name;
+    if (!string.IsNullOrEmpty(userName))
+    {
+        var currentUser = await UserManager.FindByNameAsync(userName);
+        if (currentUser != null)
+            {
+                currentUserId = currentUser.Id;
+                isCurrentUserMainAdmin = currentUser.IsMainAdmin;
+            }
+        }
+    }
+
+    private async Task LoadUsers()
+    {
+        users = UserManager.Users.ToList();
+        userRoles.Clear();
+        
+        foreach (var user in users)
+        {
+            var roles = await UserManager.GetRolesAsync(user);
+            userRoles[user.Id] = roles.ToList();
+        }
+    }
+
+    private void ShowAddUserModal()
+    {
+        newUser = new ApplicationUser();
+        newUserPassword = string.Empty;
+        selectedRole = "User";
+        showAddModal = true;
+    }
+
+    private void CloseModal()
+    {
+        showAddModal = false;
+    }
+
+    private async Task CreateUser()
+    {
+        if (string.IsNullOrWhiteSpace(newUser.UserName) || string.IsNullOrWhiteSpace(newUserPassword))
+        {
+            statusMessage = "Benutzername und Passwort sind erforderlich.";
+            isError = true;
+            return;
+        }
+
+        newUser.CreatedAt = DateTime.UtcNow;
+        var result = await UserManager.CreateAsync(newUser, newUserPassword);
+
+        if (result.Succeeded)
+        {
+            await UserManager.AddToRoleAsync(newUser, selectedRole);
+            statusMessage = $"Benutzer '{newUser.UserName}' wurde erfolgreich erstellt.";
+            isError = false;
+            await LoadUsers();
+            CloseModal();
+        }
+        else
+        {
+            statusMessage = string.Join(", ", result.Errors.Select(e => e.Description));
+            isError = true;
+        }
+    }
+
+    private void ConfirmDeleteUser(ApplicationUser user)
+    {
+        if (user.IsMainAdmin)
+        {
+            statusMessage = "Der Haupt-Administrator kann nicht gelöscht werden.";
+            isError = true;
+            return;
+        }
+        userToDelete = user;
+        showDeleteConfirm = true;
+    }
+
+    private async Task DeleteUserConfirmed()
+    {
+        if (userToDelete == null) return;
+
+        var result = await UserManager.DeleteAsync(userToDelete);
+
+        if (result.Succeeded)
+        {
+            statusMessage = $"Benutzer '{userToDelete.UserName}' wurde gelöscht.";
+            isError = false;
+            await LoadUsers();
+        }
+        else
+        {
+            statusMessage = "Fehler beim Löschen des Benutzers.";
+            isError = true;
+        }
+        
+        showDeleteConfirm = false;
+        userToDelete = null;
+    }
+
+    private async Task ApproveUser(ApplicationUser user)
+    {
+        user.IsApproved = true;
+        var result = await UserManager.UpdateAsync(user);
+        
+        if (result.Succeeded)
+        {
+            statusMessage = $"Benutzer '{user.UserName}' wurde genehmigt und kann sich jetzt anmelden.";
+            isError = false;
+            await LoadUsers();
+        }
+        else
+        {
+            statusMessage = "Fehler beim Genehmigen des Benutzers.";
+            isError = true;
+        }
+    }
+
+    private void ShowEditUserModal(ApplicationUser user)
+    {
+        if (!isCurrentUserMainAdmin)
+        {
+            statusMessage = "Nur der Haupt-Administrator kann Benutzer bearbeiten.";
+            isError = true;
+            return;
+        }
+        
+        userToEdit = user;
+        editUserName = user.UserName ?? string.Empty;
+        editFullName = user.FullName ?? string.Empty;
+        editEmail = user.Email ?? string.Empty;
+        editNewPassword = string.Empty;
+        showEditUserModal = true;
+    }
+
+    private async Task UpdateUserDetails()
+    {
+        if (userToEdit == null) return;
+        
+        if (!isCurrentUserMainAdmin)
+        {
+            statusMessage = "Nur der Haupt-Administrator kann Benutzer bearbeiten.";
+            isError = true;
+            showEditUserModal = false;
+            return;
+        }
+
+        try
+        {
+            // Update basic info
+            userToEdit.UserName = editUserName;
+            userToEdit.FullName = editFullName;
+            userToEdit.Email = editEmail;
+            userToEdit.NormalizedUserName = editUserName.ToUpper();
+            userToEdit.NormalizedEmail = editEmail?.ToUpper();
+
+            var updateResult = await UserManager.UpdateAsync(userToEdit);
+            
+            if (!updateResult.Succeeded)
+            {
+                statusMessage = "Fehler: " + string.Join(", ", updateResult.Errors.Select(e => e.Description));
+                isError = true;
+                showEditUserModal = false;
+                return;
+            }
+
+            // Update password if provided
+            if (!string.IsNullOrEmpty(editNewPassword))
+            {
+                var token = await UserManager.GeneratePasswordResetTokenAsync(userToEdit);
+                var passwordResult = await UserManager.ResetPasswordAsync(userToEdit, token, editNewPassword);
+                
+                if (!passwordResult.Succeeded)
+                {
+                    statusMessage = "Benutzerdaten gespeichert, aber Passwort-Fehler: " + 
+                        string.Join(", ", passwordResult.Errors.Select(e => e.Description));
+                    isError = true;
+                    showEditUserModal = false;
+                    await LoadUsers();
+                    return;
+                }
+            }
+
+            statusMessage = $"Benutzer '{editUserName}' wurde erfolgreich aktualisiert.";
+            isError = false;
+            showEditUserModal = false;
+            await LoadUsers();
+        }
+        catch (Exception ex)
+        {
+            statusMessage = $"Fehler: {ex.Message}";
+            isError = true;
+        }
+    }
+
+    private void ShowEditRoleModal(ApplicationUser user)
+    {
+        if (!isCurrentUserMainAdmin)
+        {
+            statusMessage = "Nur der Haupt-Administrator kann Rollen ändern.";
+            isError = true;
+            return;
+        }
+        
+        userToEdit = user;
+        if (userRoles.TryGetValue(user.Id, out var roles) && roles.Any())
+        {
+            newRole = roles.First();
+        }
+        else
+        {
+            newRole = "User";
+        }
+        showEditRoleModal = true;
+    }
+
+    private async Task UpdateUserRole()
+    {
+        if (userToEdit == null) return;
+        
+        if (!isCurrentUserMainAdmin)
+        {
+            statusMessage = "Nur der Haupt-Administrator kann Rollen ändern.";
+            isError = true;
+            showEditRoleModal = false;
+            return;
+        }
+
+        // Remove all current roles
+        var currentRoles = await UserManager.GetRolesAsync(userToEdit);
+        await UserManager.RemoveFromRolesAsync(userToEdit, currentRoles);
+
+        // Add new role
+        await UserManager.AddToRoleAsync(userToEdit, newRole);
+
+        statusMessage = $"Rolle von '{userToEdit.UserName}' wurde zu '{newRole}' geändert.";
+        isError = false;
+        
+        showEditRoleModal = false;
+        userToEdit = null;
+        await LoadUsers();
+    }
+}

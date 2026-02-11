@@ -1,0 +1,112 @@
+﻿{
+  "FileName": "PODReport_M05_021998_356716_93402_20260121.pdf",
+  "ProcessedAt": "2026-02-10T06:11:42.414781+01:00",
+  "Mandant": "M05",
+  "Depot": "Meyer Kalsdorf (AT)",
+  "Filiale": "021998",
+  "Tour": "93402",
+  "Fahrzeug": "Q53302 (W-79256K)",
+  "Anhaenger": "",
+  "Fahrer": "Soma Molnar",
+  "Adresse": "Puntigamerstraße 141, Graz, 8055",
+  "GeplanteLieferung": "2026/01/21, 08:30",
+  "StoppInfos": {
+    "GeplantAnkunft": "2026/01/21, 08:30",
+    "TatsAnkunft": "2026/01/21, 07:07",
+    "BeginnLieferung": "2026/01/21, 07:07",
+    "EndeLieferung": "2026/01/21, 08:04",
+    "Abfahrt": "2026/01/21, 08:04",
+    "Lieferzeit": "00:56",
+    "Standzeit": "--",
+    "LeistungPuenktlichkeit": "Zu  früh (01:22)"
+  },
+  "Temperaturen": [
+    {
+      "Kammer": "FR",
+      "Wert": "3.00°C",
+      "Range": "0 - 4 °C"
+    },
+    {
+      "Kammer": "TK",
+      "Wert": "-21.00°C",
+      "Range": "-40 - -15 °C"
+    }
+  ],
+  "Waren": [
+    {
+      "Lieferschein": "356716",
+      "AnzArtikel": 31,
+      "MengeBestellt": 88,
+      "MengeGeliefert": 88,
+      "MengeErhalten": "88.00",
+      "Differenz": 0.0,
+      "GesamtGewicht": "557.950",
+      "GesPreis": "0.00"
+    }
+  ],
+  "WarenGesamt": {
+    "AnzArtikel": 31,
+    "MengeBestellt": 88,
+    "MengeGeliefert": 88,
+    "MengeErhalten": "88.00",
+    "Differenz": "0.00",
+    "GesamtGewicht": "557.950",
+    "GesPreis": "0.00"
+  },
+  "LeergutSummeSeite1": {
+    "Anlieferung": 3,
+    "Zurueck": 4,
+    "Differenz": -1,
+    "Bestaetigung": "Der Filialleiter überprüfte das Leergut und bestätigte es mit Unterschrift"
+  },
+  "LeergutDetails": [
+    {
+      "ArtikelNr": "8001",
+      "Bezeichnung": "Dolli",
+      "Saldo": "--",
+      "Geplant": 0,
+      "Anlieferung": 0,
+      "Abholung": 0,
+      "Differenz": 0
+    },
+    {
+      "ArtikelNr": "8002",
+      "Bezeichnung": "Palette",
+      "Saldo": "0",
+      "Geplant": 2,
+      "Anlieferung": 2,
+      "Abholung": 1,
+      "Differenz": 1
+    },
+    {
+      "ArtikelNr": "8006",
+      "Bezeichnung": "Rollcontainer",
+      "Saldo": "0",
+      "Geplant": 1,
+      "Anlieferung": 1,
+      "Abholung": 2,
+      "Differenz": -1
+    },
+    {
+      "ArtikelNr": "8009",
+      "Bezeichnung": "Chep Palette",
+      "Saldo": "--",
+      "Geplant": 0,
+      "Anlieferung": 0,
+      "Abholung": 1,
+      "Differenz": -1
+    }
+  ],
+  "LeergutZusammenfassung": {
+    "Geplant": 3,
+    "Anlieferung": 3,
+    "Abholung": 4,
+    "Differenz": -1
+  },
+  "Abschluss": {
+    "AnnahmeStatus": "",
+    "Kommentar": "Ware wurde auf Wunsch des Filialmitarbeites weiter als hinter die erste verschließbare Tür geliefert",
+    "FahrerSignatur": "herczeg",
+    "Zeitstempel": "2026/01/21, 08:04"
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "General": {
+    "DateTimePattern": "(\\d{2}\\.\\d{2}\\.\\d{2}|\\d{4}/\\d{2}/\\d{2})\\s*,\\s*\\d{2}:\\d{2}",
+    "DateFormatList": [ "%d.%m.%y, %H:%M", "%Y/%m/%d, %H:%M", "%d.%m.%Y, %H:%M", "%Y-%m-%d %H:%M" ],
+    "ZipCodePattern": "\\b\\d{4,5}\\b"
+  },
+  "Vehicle": {
+    "PlatePatterns": [
+      "\\b([A-Z0-9]{3,10}\\s*\\([A-Z]{1,3}-[A-Z0-9]+\\s*\\d{0,5}[A-Z]?\\))",
+      "([A-Z]{1,3}-[A-Z0-9]+\\s*\\d{0,5}[A-Z]?)\\b"
+    ],
+    "Keywords": [ "Fahrzeug", "Pojazd" ],
+    "TrailerKeywords": [ "Anhänger", "Przyczepa" ]
+  },
+  "Driver": {
+    "Keywords": [ "Fahrer", "Kierowca" ],
+    "IgnoreList": [ "PARK", "ALMSTRASSE", "FILIALE", "LEERGUT", "GESAMT", "ZUSAMMENFASSUNG", "FILIALLEITER" ],
+    "NamePattern": "\\b([A-Za-zÄÖÜäöüß]{3,}\\s+[A-Za-zÄÖÜäöüß]{3,})"
+  },
+  "Address": {
+    "Keywords": [ "Adresse", "Adres", "Lieferanschrift" ],
+    "MainNotePattern": "Haupt\\s+Lieferschein\\s*[\\r\\n]+([^\\r\\n]+\\d{4,5})"
+  },
+  "Timestamps": {
+    "Labels": {
+      "GeplanteLieferung": [ "Geplante\\s+Lieferung", "Planowana\\s+dostawa" ],
+      "GeplantAnkunft": [ "Geplant\\s+Ankunft" ],
+      "TatsAnkunft": [ "Tats\\.?\\s*Ankunft" ],
+      "BeginnLieferung": [ "Beginn\\s+Lieferung" ],
+      "EndeLieferung": [ "Ende\\s+Lieferung" ],
+      "Abfahrt": [ "Abfahrt" ]
+    },
+    "PunctualityPatterns": [
+      "(Zu\\s*früh)\\s*[\\(\\[]?(\\d{2}:\\d{2})[\\) \\]]?",
+      "(Verspätet)\\s*[\\(\\[]?(\\d{2}:\\d{2})[\\) \\]]?",
+      "(Spät)\\s*[\\(\\[]?(\\d{2}:\\d{2})[\\) \\]]?",
+      "(Pünktlich)\\s*[\\(\\[]?(\\d{2}:\\d{2})[\\) \\]]?"
+    ]
+  },
+  "Temperature": {
+    "ChamberCodes": [ "FR", "TK" ],
+    "RegexPattern": "\\b(FR|TK)\\s+(-?[0-9.,]+)\\s*\\u00b0?r?\\s*C"
+  },
+  "Goods": {
+    "TablePattern": "([0-9]{6,})\\s+([0-9]+)\\s+([0-9]+)\\s+([0-9]+)\\s+([0-9]+[.,][0-9]*)\\s+([0-9.,-]+)\\s+(?:.*?)?([0-9]{1,3}[.,][0-9]{3})\\s+([0-9.,]+)",
+    "TotalPattern": "(?is)Gesamt\\s+([0-9]+)\\s+([0-9]+)\\s+([0-9]+)\\s+([0-9.,]+)\\s+([0-9.,-]+)\\s+([0-9.,]+)\\s+([0-9.,]+)"
+  },
+  "Empties": {
+    "Keywords": [ "Leergut", "Opakowania" ],
+    "CollectionPattern": "Geplante\\s+Abholung",
+    "SummaryPattern": "(?is)Zusammenfassung\\s+(.*)"
+  },
+  "Conclusion": {
+    "SignatureKeywords": [ "Filialleiter", "Kierownik" ],
+    "IgnoreSignatureContent": [ "filiale", "leergut", "gesamt", "zusammenfassung", "filialleiter", "helpdesk", "telefon", "datum", "unterschrift", "annahmebereitschaft", "kommentar", "haftungsausschluss", "geliefert", "an", "haupt", "lieferschein", "ware", "wurde", "auf", "wunsch", "des", "tür" ]
+  }
+}

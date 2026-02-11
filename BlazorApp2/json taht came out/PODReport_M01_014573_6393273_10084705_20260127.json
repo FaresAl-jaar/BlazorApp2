@@ -1,0 +1,130 @@
+﻿{
+  "FileName": "PODReport_M01_014573_6393273_10084705_20260127.pdf",
+  "ProcessedAt": "2026-02-10T06:11:38.819465+01:00",
+  "Mandant": "M01",
+  "Depot": "Schüssler Heppenheim",
+  "Filiale": "014573",
+  "Tour": "10084705",
+  "Fahrzeug": "HP-WS 401",
+  "Anhaenger": "HP-WS 143",
+  "Fahrer": "Claudio Lauretta",
+  "Adresse": "Rasthof Hardtwald Ost 10, Sandhausen, 69207",
+  "GeplanteLieferung": "2026/01/27, 15:15",
+  "StoppInfos": {
+    "GeplantAnkunft": "2026/01/27, 15:15",
+    "TatsAnkunft": "2026/01/27, 13:43",
+    "BeginnLieferung": "2026/01/27, 13:43",
+    "EndeLieferung": "2026/01/27, 14:01",
+    "Abfahrt": "2026/01/27, 14:01",
+    "Lieferzeit": "00:17",
+    "Standzeit": "--",
+    "LeistungPuenktlichkeit": "Zu  früh (01:31)"
+  },
+  "Temperaturen": [
+    {
+      "Kammer": "FR",
+      "Wert": "2.80°C",
+      "Range": ""
+    },
+    {
+      "Kammer": "TK",
+      "Wert": "-19.60°C",
+      "Range": ""
+    }
+  ],
+  "Waren": [
+    {
+      "Lieferschein": "6393273",
+      "AnzArtikel": 16,
+      "MengeBestellt": 32,
+      "MengeGeliefert": 32,
+      "MengeErhalten": "32.00",
+      "Differenz": 0.0,
+      "GesamtGewicht": "273.540",
+      "GesPreis": "0.00"
+    }
+  ],
+  "WarenGesamt": {
+    "AnzArtikel": 16,
+    "MengeBestellt": 32,
+    "MengeGeliefert": 32,
+    "MengeErhalten": "32.00",
+    "Differenz": "0.00",
+    "GesamtGewicht": "273.540",
+    "GesPreis": "0.00"
+  },
+  "LeergutSummeSeite1": {
+    "Anlieferung": 5,
+    "Zurueck": 6,
+    "Differenz": -1,
+    "Bestaetigung": "Der Filialleiter überprüfte das Leergut und bestätigte es mit Unterschrift"
+  },
+  "LeergutDetails": [
+    {
+      "ArtikelNr": "8001",
+      "Bezeichnung": "Dolli",
+      "Saldo": "--",
+      "Geplant": 0,
+      "Anlieferung": 1,
+      "Abholung": 1,
+      "Differenz": 0
+    },
+    {
+      "ArtikelNr": "8002",
+      "Bezeichnung": "Palette",
+      "Saldo": "--",
+      "Geplant": 0,
+      "Anlieferung": 0,
+      "Abholung": 0,
+      "Differenz": 0
+    },
+    {
+      "ArtikelNr": "8006",
+      "Bezeichnung": "Rollcontainer",
+      "Saldo": "0",
+      "Geplant": 3,
+      "Anlieferung": 2,
+      "Abholung": 2,
+      "Differenz": 0
+    },
+    {
+      "ArtikelNr": "8017",
+      "Bezeichnung": "Zwischenboden für Rollcontaine",
+      "Saldo": "--",
+      "Geplant": 0,
+      "Anlieferung": 0,
+      "Abholung": 0,
+      "Differenz": 0
+    },
+    {
+      "ArtikelNr": "8061",
+      "Bezeichnung": "Braune Trays LTO",
+      "Saldo": "--",
+      "Geplant": 0,
+      "Anlieferung": 0,
+      "Abholung": 0,
+      "Differenz": 0
+    },
+    {
+      "ArtikelNr": "8022",
+      "Bezeichnung": "Gemüse-Kiste",
+      "Saldo": "--",
+      "Geplant": 0,
+      "Anlieferung": 2,
+      "Abholung": 3,
+      "Differenz": -1
+    }
+  ],
+  "LeergutZusammenfassung": {
+    "Geplant": 3,
+    "Anlieferung": 5,
+    "Abholung": 6,
+    "Differenz": -1
+  },
+  "Abschluss": {
+    "AnnahmeStatus": "",
+    "Kommentar": "Ware wurde auf Wunsch des Filialmitarbeites weiter als hinter die erste verschließbare Tür geliefert",
+    "FahrerSignatur": "",
+    "Zeitstempel": "2026/01/27, 14:01"
+  }
+}

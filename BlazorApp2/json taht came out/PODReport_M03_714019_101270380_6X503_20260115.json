@@ -1,0 +1,168 @@
+﻿{
+  "FileName": "PODReport_M03_714019_101270380_6X503_20260115.pdf",
+  "ProcessedAt": "2026-02-10T06:11:41.350738+01:00",
+  "Mandant": "M03",
+  "Depot": "Meyer Wildau",
+  "Filiale": "714019",
+  "Tour": "6X503",
+  "Fahrzeug": "Q16431 (BM-QS 1018)",
+  "Anhaenger": "",
+  "Fahrer": "Konstantinos Pagkratis",
+  "Adresse": "Almstrasse 26, Hildesheim, 31134",
+  "GeplanteLieferung": "2026/01/15, 08:15",
+  "StoppInfos": {
+    "GeplantAnkunft": "2026/01/15, 08:15",
+    "TatsAnkunft": "2026/01/15, 08:20",
+    "BeginnLieferung": "2026/01/15, 08:20",
+    "EndeLieferung": "2026/01/15, 08:49",
+    "Abfahrt": "2026/01/15, 08:49",
+    "Lieferzeit": "00:29",
+    "Standzeit": "--",
+    "LeistungPuenktlichkeit": "Pünktlich (00:05)"
+  },
+  "Temperaturen": [
+    {
+      "Kammer": "FR",
+      "Wert": "2.00°C",
+      "Range": "0 - 4 °C"
+    },
+    {
+      "Kammer": "TK",
+      "Wert": "-23.00°C",
+      "Range": "-40 - -15 °C"
+    }
+  ],
+  "Waren": [
+    {
+      "Lieferschein": "101270380",
+      "AnzArtikel": 3,
+      "MengeBestellt": 11,
+      "MengeGeliefert": 11,
+      "MengeErhalten": "11.00",
+      "Differenz": 0.0,
+      "GesamtGewicht": "25.680",
+      "GesPreis": "0.00"
+    },
+    {
+      "Lieferschein": "101270381",
+      "AnzArtikel": 17,
+      "MengeBestellt": 134,
+      "MengeGeliefert": 134,
+      "MengeErhalten": "134.00",
+      "Differenz": 0.0,
+      "GesamtGewicht": "918.950",
+      "GesPreis": "0.00"
+    },
+    {
+      "Lieferschein": "101270382",
+      "AnzArtikel": 28,
+      "MengeBestellt": 51,
+      "MengeGeliefert": 51,
+      "MengeErhalten": "51.00",
+      "Differenz": 0.0,
+      "GesamtGewicht": "442.950",
+      "GesPreis": "0.00"
+    }
+  ],
+  "WarenGesamt": {
+    "AnzArtikel": 48,
+    "MengeBestellt": 196,
+    "MengeGeliefert": 196,
+    "MengeErhalten": "196.00",
+    "Differenz": "0.00",
+    "GesamtGewicht": "1387.580",
+    "GesPreis": "0.00"
+  },
+  "LeergutSummeSeite1": {
+    "Anlieferung": 10,
+    "Zurueck": 10,
+    "Differenz": 0,
+    "Bestaetigung": "Der Filialleiter überprüfte das Leergut und bestätigte es mit Unterschrift"
+  },
+  "LeergutDetails": [
+    {
+      "ArtikelNr": "8002",
+      "Bezeichnung": "Palette",
+      "Saldo": "--",
+      "Geplant": 0,
+      "Anlieferung": 0,
+      "Abholung": 0,
+      "Differenz": 0
+    },
+    {
+      "ArtikelNr": "8006",
+      "Bezeichnung": "Rollcontainer",
+      "Saldo": "0",
+      "Geplant": 9,
+      "Anlieferung": 9,
+      "Abholung": 9,
+      "Differenz": 0
+    },
+    {
+      "ArtikelNr": "8017",
+      "Bezeichnung": "Zwischenboden für Rollcontaine",
+      "Saldo": "--",
+      "Geplant": 0,
+      "Anlieferung": 1,
+      "Abholung": 1,
+      "Differenz": 0
+    },
+    {
+      "ArtikelNr": "8025",
+      "Bezeichnung": "Universal leere Getränke Kiste",
+      "Saldo": "--",
+      "Geplant": 0,
+      "Anlieferung": 0,
+      "Abholung": 0,
+      "Differenz": 0
+    },
+    {
+      "ArtikelNr": "8026",
+      "Bezeichnung": "GetränkeKiste voll",
+      "Saldo": "--",
+      "Geplant": 0,
+      "Anlieferung": 0,
+      "Abholung": 0,
+      "Differenz": 0
+    },
+    {
+      "ArtikelNr": "8027",
+      "Bezeichnung": "Getränke-EinwegKiste 12er voll",
+      "Saldo": "--",
+      "Geplant": 0,
+      "Anlieferung": 0,
+      "Abholung": 0,
+      "Differenz": 0
+    },
+    {
+      "ArtikelNr": "8033",
+      "Bezeichnung": "6er voll Einweg/Tray",
+      "Saldo": "--",
+      "Geplant": 0,
+      "Anlieferung": 0,
+      "Abholung": 0,
+      "Differenz": 0
+    },
+    {
+      "ArtikelNr": "8035",
+      "Bezeichnung": "18er voll Einweg/Tray",
+      "Saldo": "--",
+      "Geplant": 0,
+      "Anlieferung": 0,
+      "Abholung": 0,
+      "Differenz": 0
+    }
+  ],
+  "LeergutZusammenfassung": {
+    "Geplant": 9,
+    "Anlieferung": 10,
+    "Abholung": 10,
+    "Differenz": 0
+  },
+  "Abschluss": {
+    "AnnahmeStatus": "Lagerbereit       und    pünktlich      geliefert",
+    "Kommentar": "Ware wurde auf Wunsch des Filialmitarbeites weiter als hinter die erste verschließbare Tür geliefert",
+    "FahrerSignatur": "maurice",
+    "Zeitstempel": "2026/01/15, 08:49"
+  }
+}

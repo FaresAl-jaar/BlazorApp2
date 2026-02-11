@@ -1,0 +1,220 @@
+@page "/profile"
+@using BlazorApp2.Models
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Components.Authorization
+@attribute [Authorize]
+@inject UserManager<ApplicationUser> UserManager
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<PageTitle>Mein Profil</PageTitle>
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="bi bi-person-circle me-2"></i>Mein Profil</h2>
+            <p class="text-muted">Persönliche Einstellungen bearbeiten</p>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(statusMessage))
+    {
+        <div class="alert @(isError ? "alert-danger" : "alert-success") alert-dismissible fade show">
+            <i class="bi @(isError ? "bi-exclamation-circle" : "bi-check-circle") me-2"></i>@statusMessage
+            <button type="button" class="btn-close" @onclick="() => statusMessage = null"></button>
+        </div>
+    }
+
+    @if (currentUser != null)
+    {
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-person me-2"></i>Profilinformationen</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Benutzername</label>
+                            <input type="text" class="form-control" value="@currentUser.UserName" disabled />
+                            <small class="text-muted">Benutzername kann nicht geändert werden</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Vollständiger Name</label>
+                            <input type="text" class="form-control" @bind="newFullName" placeholder="Ihr Name" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">E-Mail</label>
+                            <input type="email" class="form-control" @bind="newEmail" placeholder="ihre@email.de" />
+                        </div>
+                        <button class="btn btn-primary" @onclick="UpdateProfile">
+                            <i class="bi bi-save me-2"></i>Profil speichern
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-key me-2"></i>Passwort ändern</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Aktuelles Passwort</label>
+                            <input type="password" class="form-control" @bind="currentPassword" placeholder="Aktuelles Passwort" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Neues Passwort</label>
+                            <input type="password" class="form-control" @bind="newPassword" placeholder="Neues Passwort" />
+                            <small class="text-muted">Mind. 6 Zeichen, 1 Großbuchstabe, 1 Zahl</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Neues Passwort bestätigen</label>
+                            <input type="password" class="form-control" @bind="confirmPassword" placeholder="Passwort wiederholen" />
+                        </div>
+                        <button class="btn btn-warning" @onclick="ChangePassword">
+                            <i class="bi bi-key me-2"></i>Passwort ändern
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Kontoinformationen</h5>
+                    </div>
+                    <div class="card-body">
+                        <dl class="row mb-0">
+                            <dt class="col-sm-5">Erstellt am:</dt>
+                            <dd class="col-sm-7">@currentUser.CreatedAt.ToString("dd.MM.yyyy HH:mm")</dd>
+                            <dt class="col-sm-5">Letzter Login:</dt>
+                            <dd class="col-sm-7">@(currentUser.LastLoginAt?.ToString("dd.MM.yyyy HH:mm") ?? "-")</dd>
+                            <dt class="col-sm-5">Rolle:</dt>
+                            <dd class="col-sm-7">
+                                @if (isAdmin)
+                                {
+                                    <span class="badge bg-danger">Administrator</span>
+                                    @if (currentUser.IsMainAdmin)
+                                    {
+                                        <span class="badge bg-warning text-dark ms-1">Haupt-Admin</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Benutzer</span>
+                                }
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary"></div>
+            <p class="mt-2">Lade Profil...</p>
+        </div>
+    }
+</div>
+
+@code {
+    private ApplicationUser? currentUser;
+    private string newFullName = string.Empty;
+    private string newEmail = string.Empty;
+    private string currentPassword = string.Empty;
+    private string newPassword = string.Empty;
+    private string confirmPassword = string.Empty;
+    private string? statusMessage;
+    private bool isError;
+    private bool isAdmin;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCurrentUser();
+    }
+
+    private async Task LoadCurrentUser()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var userName = authState.User.Identity?.Name;
+        
+        if (!string.IsNullOrEmpty(userName))
+        {
+            currentUser = await UserManager.FindByNameAsync(userName);
+            if (currentUser != null)
+            {
+                newFullName = currentUser.FullName ?? string.Empty;
+                newEmail = currentUser.Email ?? string.Empty;
+                isAdmin = await UserManager.IsInRoleAsync(currentUser, "Admin");
+            }
+        }
+    }
+
+    private async Task UpdateProfile()
+    {
+        if (currentUser == null) return;
+
+        currentUser.FullName = newFullName;
+        currentUser.Email = newEmail;
+        currentUser.NormalizedEmail = newEmail?.ToUpper();
+
+        var result = await UserManager.UpdateAsync(currentUser);
+        
+        if (result.Succeeded)
+        {
+            statusMessage = "Profil erfolgreich aktualisiert.";
+            isError = false;
+        }
+        else
+        {
+            statusMessage = "Fehler: " + string.Join(", ", result.Errors.Select(e => e.Description));
+            isError = true;
+        }
+    }
+
+    private async Task ChangePassword()
+    {
+        if (currentUser == null) return;
+
+        if (string.IsNullOrEmpty(currentPassword))
+        {
+            statusMessage = "Bitte geben Sie Ihr aktuelles Passwort ein.";
+            isError = true;
+            return;
+        }
+
+        if (string.IsNullOrEmpty(newPassword))
+        {
+            statusMessage = "Bitte geben Sie ein neues Passwort ein.";
+            isError = true;
+            return;
+        }
+
+        if (newPassword != confirmPassword)
+        {
+            statusMessage = "Die neuen Passwörter stimmen nicht überein.";
+            isError = true;
+            return;
+        }
+
+        var result = await UserManager.ChangePasswordAsync(currentUser, currentPassword, newPassword);
+        
+        if (result.Succeeded)
+        {
+            statusMessage = "Passwort erfolgreich geändert.";
+            isError = false;
+            currentPassword = string.Empty;
+            newPassword = string.Empty;
+            confirmPassword = string.Empty;
+        }
+        else
+        {
+            statusMessage = "Fehler: " + string.Join(", ", result.Errors.Select(e => e.Description));
+            isError = true;
+        }
+    }
+}

@@ -1,0 +1,73 @@
+@page "/login"
+@inject NavigationManager Navigation
+
+<PageTitle>Anmeldung</PageTitle>
+
+<div class="container">
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-5">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4><i class="bi bi-box-arrow-in-right me-2"></i>Anmeldung</h4>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(ErrorMessage))
+                    {
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle me-2"></i>@ErrorMessage
+                        </div>
+                    }
+
+                    <form method="post" action="/Auth/login">
+                        <div class="mb-3">
+                            <label class="form-label">Benutzername</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                <input type="text" name="username" class="form-control" placeholder="Benutzername" required />
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Passwort</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                                <input type="password" name="password" class="form-control" placeholder="Passwort" required />
+                            </div>
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" name="rememberMe" value="true" class="form-check-input" id="rememberMe" />
+                            <label class="form-check-label" for="rememberMe">Angemeldet bleiben</label>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-box-arrow-in-right me-2"></i>Anmelden
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <hr />
+                    <div class="text-center">
+                        <span class="text-muted">Noch kein Konto?</span>
+                        <a href="/register" class="ms-2">Jetzt registrieren</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-3">
+                <small class="text-muted">
+                    Standard-Login: <strong>admin</strong> / <strong>Admin123!</strong>
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    public string? Error { get; set; }
+    
+    
+    private string? ErrorMessage => string.IsNullOrEmpty(Error) ? null : Uri.UnescapeDataString(Error.Replace("+", " "));
+}

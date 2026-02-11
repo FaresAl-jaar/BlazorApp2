@@ -1,0 +1,121 @@
+﻿{
+  "FileName": "PODReport_M01_110102701_6393614_1X306_20260127.pdf",
+  "ProcessedAt": "2026-02-10T06:11:40.388571+01:00",
+  "Mandant": "M01",
+  "Depot": "Meyer Essen",
+  "Filiale": "110102701",
+  "Tour": "1X306",
+  "Fahrzeug": "Q11640 (WI-QS 516)",
+  "Anhaenger": "Q11840 (WI-QS 536)",
+  "Fahrer": "Namenski Franci",
+  "Adresse": "Gartenstraße 3, Halle (Westfalen), 33790",
+  "GeplanteLieferung": "2026/01/27, 14:30",
+  "StoppInfos": {
+    "GeplantAnkunft": "2026/01/27, 14:30",
+    "TatsAnkunft": "2026/01/27, 14:08",
+    "BeginnLieferung": "2026/01/27, 14:08",
+    "EndeLieferung": "2026/01/27, 14:10",
+    "Abfahrt": "2026/01/27, 14:10",
+    "Lieferzeit": "00:02",
+    "Standzeit": "--",
+    "LeistungPuenktlichkeit": "Zu  früh (00:21)"
+  },
+  "Temperaturen": [
+    {
+      "Kammer": "FR",
+      "Wert": "2.50°C",
+      "Range": "0 - 4 °C"
+    },
+    {
+      "Kammer": "TK",
+      "Wert": "-20.00°C",
+      "Range": "-40 - -15 °C"
+    }
+  ],
+  "Waren": [
+    {
+      "Lieferschein": "6393614",
+      "AnzArtikel": 30,
+      "MengeBestellt": 39,
+      "MengeGeliefert": 39,
+      "MengeErhalten": "39.00",
+      "Differenz": 0.0,
+      "GesamtGewicht": "220.920",
+      "GesPreis": "0.00"
+    }
+  ],
+  "WarenGesamt": {
+    "AnzArtikel": 30,
+    "MengeBestellt": 39,
+    "MengeGeliefert": 39,
+    "MengeErhalten": "39.00",
+    "Differenz": "0.00",
+    "GesamtGewicht": "220.920",
+    "GesPreis": "0.00"
+  },
+  "LeergutSummeSeite1": {
+    "Anlieferung": 3,
+    "Zurueck": 3,
+    "Differenz": 0,
+    "Bestaetigung": "Der Filialleiter überprüfte das Leergut und bestätigte es mit Unterschrift"
+  },
+  "LeergutDetails": [
+    {
+      "ArtikelNr": "8002",
+      "Bezeichnung": "Palette",
+      "Saldo": "--",
+      "Geplant": 0,
+      "Anlieferung": 0,
+      "Abholung": 0,
+      "Differenz": 0
+    },
+    {
+      "ArtikelNr": "8006",
+      "Bezeichnung": "Rollcontainer",
+      "Saldo": "0",
+      "Geplant": 2,
+      "Anlieferung": 2,
+      "Abholung": 2,
+      "Differenz": 0
+    },
+    {
+      "ArtikelNr": "8022",
+      "Bezeichnung": "Gemüse-Kiste",
+      "Saldo": "--",
+      "Geplant": 0,
+      "Anlieferung": 0,
+      "Abholung": 0,
+      "Differenz": 0
+    },
+    {
+      "ArtikelNr": "8017",
+      "Bezeichnung": "Zwischenboden für Rollcontaine",
+      "Saldo": "--",
+      "Geplant": 0,
+      "Anlieferung": 1,
+      "Abholung": 1,
+      "Differenz": 0
+    },
+    {
+      "ArtikelNr": "8009",
+      "Bezeichnung": "Chep Palette",
+      "Saldo": "--",
+      "Geplant": 0,
+      "Anlieferung": 0,
+      "Abholung": 0,
+      "Differenz": 0
+    }
+  ],
+  "LeergutZusammenfassung": {
+    "Geplant": 2,
+    "Anlieferung": 3,
+    "Abholung": 3,
+    "Differenz": 0
+  },
+  "Abschluss": {
+    "AnnahmeStatus": "Lagerbereit       und    pünktlich      geliefert",
+    "Kommentar": "Ware wurde auf Wunsch des Filialmitarbeites weiter als hinter die erste verschließbare Tür geliefert",
+    "FahrerSignatur": "Faramarzi",
+    "Zeitstempel": "2026/01/27, 14:10"
+  }
+}

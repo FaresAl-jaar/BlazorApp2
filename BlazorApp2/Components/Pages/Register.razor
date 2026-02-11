@@ -1,0 +1,182 @@
+@page "/register"
+@using BlazorApp2.Models
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<PageTitle>Registrierung</PageTitle>
+
+<div class="container">
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-5">
+            <div class="card shadow">
+                <div class="card-header text-center bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-person-plus me-2"></i>Registrierung</h4>
+                </div>
+                <div class="card-body p-4">
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-circle me-2"></i>@errorMessage
+                        </div>
+                    }
+                    
+                    @if (registrationSuccess)
+                    {
+                        <div class="alert alert-success">
+                            <i class="bi bi-check-circle me-2"></i>Registrierung erfolgreich!
+                        </div>
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <strong>Hinweis:</strong> Ihr Konto muss erst von einem Administrator genehmigt werden, bevor Sie sich anmelden können.
+                        </div>
+                        <div class="text-center">
+                            <a href="/login" class="btn btn-primary">Zum Login</a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info mb-3">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Nach der Registrierung muss ein Administrator Ihr Konto genehmigen.
+                        </div>
+                        
+                        <EditForm Model="registerModel" OnValidSubmit="HandleRegister" FormName="register">
+                            <DataAnnotationsValidator />
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Benutzername</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                    <InputText @bind-Value="registerModel.UserName" class="form-control" placeholder="Benutzername" />
+                                </div>
+                                <ValidationMessage For="@(() => registerModel.UserName)" class="text-danger" />
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Vollständiger Name</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
+                                    <InputText @bind-Value="registerModel.FullName" class="form-control" placeholder="Max Mustermann" />
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">E-Mail</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                                    <InputText @bind-Value="registerModel.Email" type="email" class="form-control" placeholder="email@beispiel.de" />
+                                </div>
+                                <ValidationMessage For="@(() => registerModel.Email)" class="text-danger" />
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Passwort</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                                    <InputText @bind-Value="registerModel.Password" type="password" class="form-control" placeholder="Passwort" />
+                                </div>
+                                <ValidationMessage For="@(() => registerModel.Password)" class="text-danger" />
+                                <small class="text-muted">Mind. 6 Zeichen, 1 Großbuchstabe, 1 Zahl</small>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Passwort bestätigen</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                                    <InputText @bind-Value="registerModel.ConfirmPassword" type="password" class="form-control" placeholder="Passwort wiederholen" />
+                                </div>
+                                <ValidationMessage For="@(() => registerModel.ConfirmPassword)" class="text-danger" />
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary" disabled="@isLoading">
+                                    @if (isLoading)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2"></span>
+                                    }
+                                    <i class="bi bi-person-plus me-2"></i>Registrieren
+                                </button>
+                            </div>
+                        </EditForm>
+                        
+                        <hr />
+                        <div class="text-center">
+                            <span class="text-muted">Bereits registriert?</span>
+                            <a href="/login" class="ms-2">Anmelden</a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private RegisterModel registerModel = new();
+    private string? errorMessage;
+    private bool isLoading;
+    private bool registrationSuccess;
+
+    public class RegisterModel
+    {
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Benutzername ist erforderlich")]
+        public string UserName { get; set; } = string.Empty;
+        
+        public string? FullName { get; set; }
+        
+        [System.ComponentModel.DataAnnotations.EmailAddress(ErrorMessage = "Ungültige E-Mail-Adresse")]
+        public string? Email { get; set; }
+        
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Passwort ist erforderlich")]
+        [System.ComponentModel.DataAnnotations.MinLength(6, ErrorMessage = "Passwort muss mindestens 6 Zeichen haben")]
+        public string Password { get; set; } = string.Empty;
+        
+        [System.ComponentModel.DataAnnotations.Compare("Password", ErrorMessage = "Passwörter stimmen nicht überein")]
+        public string ConfirmPassword { get; set; } = string.Empty;
+    }
+
+    private async Task HandleRegister()
+    {
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            var existingUser = await UserManager.FindByNameAsync(registerModel.UserName);
+            if (existingUser != null)
+            {
+                errorMessage = "Benutzername ist bereits vergeben.";
+                isLoading = false;
+                return;
+            }
+
+            var user = new ApplicationUser
+            {
+                UserName = registerModel.UserName,
+                Email = registerModel.Email,
+                FullName = registerModel.FullName,
+                EmailConfirmed = true
+            };
+
+            var result = await UserManager.CreateAsync(user, registerModel.Password);
+
+            if (result.Succeeded)
+            {
+                await UserManager.AddToRoleAsync(user, "User");
+                registrationSuccess = true;
+            }
+            else
+            {
+                errorMessage = string.Join(" ", result.Errors.Select(e => e.Description));
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Fehler bei der Registrierung: {ex.Message}";
+        }
+
+        isLoading = false;
+    }
+}

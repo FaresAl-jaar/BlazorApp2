@@ -232,7 +232,7 @@ ENTRYPOINT ["dotnet", "BlazorApp2.dll"]
     "SubmitEndpoint": "/api/documents/upload",
     "ApiKey": ""
   },
-  "IncomingEndpoints": {
+  "IncomingApi": {
     "DockerEndpoint": "http://FRDTESTLXSRV:8086/api/documents/receive"
   },
   "PdfPlumber": {

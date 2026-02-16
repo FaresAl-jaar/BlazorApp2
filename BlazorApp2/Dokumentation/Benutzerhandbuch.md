@@ -14,7 +14,7 @@
 ## 1. Erste Schritte
 
 ### Anmeldung
-1. Öffnen Sie die Anwendung im Browser
+1. Ã–ffnen Sie die Anwendung im Browser
 2. Geben Sie Benutzername und Passwort ein
 3. Klicken Sie auf "Anmelden"
 
@@ -29,14 +29,14 @@ Klicken Sie auf das Mond-Symbol (??) in der oberen rechten Ecke, um zwischen Hel
 
 ## 2. Dashboard
 
-Das Dashboard zeigt eine Übersicht über:
+Das Dashboard zeigt eine Ãœbersicht Ã¼ber:
 - **Gesamtzahl Dokumente** - Alle empfangenen PDFs
 - **In Bearbeitung** - Noch nicht abgeschlossene Dokumente
-- **Abgeschlossen** - Validierte und übermittelte Dokumente
+- **Abgeschlossen** - Validierte und Ã¼bermittelte Dokumente
 - **Fehler** - Dokumente mit Verarbeitungsfehlern
 
 ### Schnellaktionen
-- **Dokumente ansehen** - Zur Dokumentenübersicht
+- **Dokumente ansehen** - Zur DokumentenÃ¼bersicht
 - **Neues Dokument** - Manueller Upload (falls aktiviert)
 
 ---
@@ -48,9 +48,9 @@ Die Tabelle zeigt alle empfangenen Dokumente mit:
 - ID und Externe ID
 - Dateiname
 - Empfangsdatum
-- Status (Empfangen, Extrahiert, Geprüft, etc.)
+- Status (Empfangen, Extrahiert, GeprÃ¼ft, etc.)
 - Aktueller Bearbeiter
-- Verfügbarkeit der JSON-Daten
+- VerfÃ¼gbarkeit der JSON-Daten
 
 ### Filter und Suche
 - **Status-Filter:** Dropdown zur Filterung nach Status
@@ -60,15 +60,15 @@ Die Tabelle zeigt alle empfangenen Dokumente mit:
 
 | Symbol | Aktion | Beschreibung |
 |--------|--------|--------------|
-| ? | Übernehmen | Dokument zur Bearbeitung reservieren |
-| ? (gefüllt) | Freigeben | Reservierung aufheben |
-| ?? | Bearbeiten | Dokumenteneditor öffnen |
+| ? | Ãœbernehmen | Dokument zur Bearbeitung reservieren |
+| ? (gefÃ¼llt) | Freigeben | Reservierung aufheben |
+| ?? | Bearbeiten | Dokumenteneditor Ã¶ffnen |
 | ??? | Ansehen | Nur-Lesen-Modus |
 | ?? | Download | JSON herunterladen |
-| ??? | Löschen | Dokument entfernen |
+| ??? | LÃ¶schen | Dokument entfernen |
 
 ### JSON-Export
-Über den Button "JSON Export" können Sie:
+Ãœber den Button "JSON Export" kÃ¶nnen Sie:
 - **Alle als ZIP** - Alle Dokumente mit JSON-Daten
 - **Gefilterte als ZIP** - Nur aktuell angezeigte Dokumente
 
@@ -98,16 +98,16 @@ Der Editor ist zweigeteilt:
   "Fahrzeug": "Q12345 (AB-CD 1234)",
   "Anhaenger": "Q67890 (EF-GH 5678)",
   "Fahrer": "Max Mustermann",
-  "Adresse": "Musterstraße 1, 12345 Musterstadt",
+  "Adresse": "MusterstraÃŸe 1, 12345 Musterstadt",
   "GeplanteLieferung": "2026/02/10, 08:00",
   "StoppInfos": {
     "TatsAnkunft": "2026/02/10, 08:15",
     "Lieferzeit": "00:30",
-    "LeistungPuenktlichkeit": "Pünktlich (00:15)"
+    "LeistungPuenktlichkeit": "PÃ¼nktlich (00:15)"
   },
   "Temperaturen": [
-    {"Kammer": "FR", "Wert": "2.00°C"},
-    {"Kammer": "TK", "Wert": "-21.00°C"}
+    {"Kammer": "FR", "Wert": "2.00Â°C"},
+    {"Kammer": "TK", "Wert": "-21.00Â°C"}
   ],
   "WarenGesamt": {
     "AnzArtikel": 50,
@@ -119,22 +119,22 @@ Der Editor ist zweigeteilt:
 ### An API senden
 Nach der Validierung:
 1. Klicken Sie auf "An Lobster senden" (??)
-2. Bestätigen Sie die Übermittlung
-3. Status wechselt zu "Übermittelt"
+2. BestÃ¤tigen Sie die Ãœbermittlung
+3. Status wechselt zu "Ãœbermittelt"
 
 ---
 
 ## 5. OCR-Konfiguration
 
 ### Zugriff
-Navigation ? OCR-Konfiguration (nur für Administratoren)
+Navigation ? OCR-Konfiguration (nur fÃ¼r Administratoren)
 
 ### Aufbau der Konfiguration
 
 ```json
 {
   "Vehicle": {
-    "PlatePatterns": ["Regex für Kennzeichen"],
+    "PlatePatterns": ["Regex fÃ¼r Kennzeichen"],
     "Keywords": ["Fahrzeug", "Pojazd"]
   },
   "Driver": {
@@ -150,13 +150,13 @@ Navigation ? OCR-Konfiguration (nur für Administratoren)
 ```
 
 ### Regex-Pattern bearbeiten
-1. Navigieren Sie zur gewünschten Sektion
+1. Navigieren Sie zur gewÃ¼nschten Sektion
 2. Bearbeiten Sie das Pattern (Regex-Syntax)
 3. Klicken Sie auf "Speichern"
 4. Testen Sie mit einem neuen PDF
 
-### Zurücksetzen
-Klicken Sie auf "Auf Standard zurücksetzen" um die Originalkonfiguration wiederherzustellen.
+### ZurÃ¼cksetzen
+Klicken Sie auf "Auf Standard zurÃ¼cksetzen" um die Originalkonfiguration wiederherzustellen.
 
 ---
 
@@ -165,8 +165,8 @@ Klicken Sie auf "Auf Standard zurücksetzen" um die Originalkonfiguration wiederh
 ### Benutzer anlegen (Admin)
 1. Navigation ? Benutzerverwaltung
 2. Klicken Sie auf "Neuer Benutzer"
-3. Füllen Sie das Formular aus
-4. Wählen Sie die Rolle (User/Admin)
+3. FÃ¼llen Sie das Formular aus
+4. WÃ¤hlen Sie die Rolle (User/Admin)
 5. Speichern
 
 ### Rollen
@@ -174,12 +174,12 @@ Klicken Sie auf "Auf Standard zurücksetzen" um die Originalkonfiguration wiederh
 | Rolle | Berechtigungen |
 |-------|----------------|
 | User | Dokumente ansehen, bearbeiten, senden |
-| Admin | Alle Funktionen + Benutzerverwaltung + Löschen |
+| Admin | Alle Funktionen + Benutzerverwaltung + LÃ¶schen |
 
-### Passwort ändern
+### Passwort Ã¤ndern
 1. Navigation ? Profil
 2. Neues Passwort eingeben
-3. Bestätigen und Speichern
+3. BestÃ¤tigen und Speichern
 
 ---
 
@@ -229,26 +229,19 @@ Content-Type: application/json
   "externalId": "12345"
 }
 ```
-
-### Postman Collection
-Eine Postman-Collection für alle API-Endpunkte finden Sie unter:
-`/Dokumentation/API_Collection.json`
-
----
-
-## Häufige Probleme
+## HÃ¤ufige Probleme
 
 ### PDF wird nicht verarbeitet
-- Prüfen Sie, ob Python korrekt installiert ist
-- Prüfen Sie die Logs unter "Fehlerprotokolle"
-- Stellen Sie sicher, dass die PDF Textebenen enthält
+- PrÃ¼fen Sie, ob Python korrekt installiert ist
+- PrÃ¼fen Sie die Logs unter "Fehlerprotokolle"
+- Stellen Sie sicher, dass die PDF Textebenen enthÃ¤lt
 
 ### Umlaute werden nicht erkannt
 - Das System verwendet UTF-8
-- Prüfen Sie die Quell-PDF auf korrekte Kodierung
+- PrÃ¼fen Sie die Quell-PDF auf korrekte Kodierung
 
 ### Verbindung unterbrochen
-- Blazor Server benötigt eine aktive Verbindung
+- Blazor Server benÃ¶tigt eine aktive Verbindung
 - Bei Trennung erscheint ein Reconnect-Dialog
 - Warten Sie oder laden Sie die Seite neu
 

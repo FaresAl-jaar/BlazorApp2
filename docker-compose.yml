@@ -7,7 +7,6 @@ services:
       - "8086:8080"
     volumes:
       - ./data:/app/data
-      - ./config:/app/Config
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ConnectionStrings__DefaultConnection=Data Source=/app/data/pdfmanager.db

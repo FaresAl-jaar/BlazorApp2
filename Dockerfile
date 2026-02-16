@@ -29,11 +29,11 @@ COPY BlazorApp2/Python /app/Python
 COPY BlazorApp2/Config /app/Config
 
 # Create directories for persistence
-RUN mkdir -p /app/data
+RUN mkdir -p /app/data /app/Config
 
 ENV ASPNETCORE_URLS=http://+:8080
 ENV ConnectionStrings__DefaultConnection="Data Source=/app/data/pdfmanager.db"
-ENV OCR_CONFIG_PATH=/app/Config/ocr_config.json
+ENV OCR_CONFIG_PATH=/app/data/ocr_config.json
 ENV PdfPlumber__Enabled=true
 ENV PdfPlumber__PythonPath=python3
 ENV PdfPlumber__ScriptPath=/app/Python/processor.py

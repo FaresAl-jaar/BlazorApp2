@@ -25,11 +25,31 @@ public class OcrConfigService : IOcrConfigService
     public OcrConfigService(IConfiguration configuration, ILogger<OcrConfigService> logger)
     {
         _logger = logger;
-        _configPath = Environment.GetEnvironmentVariable("OCR_CONFIG_PATH") ?? 
-                      Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config", "ocr_config.json");
         
-        var dir = Path.GetDirectoryName(_configPath);
-        if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir)) Directory.CreateDirectory(dir);
+        // Define paths
+        var bakedInPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config", "ocr_config.json");
+        var persistentPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "ocr_config.json");
+        
+        // Priority: Environment Variable > Persistent Volume > Baked-in
+        _configPath = Environment.GetEnvironmentVariable("OCR_CONFIG_PATH") ?? persistentPath;
+        
+        // AUTO-INITIALIZATION: If we are using the persistent path but it's empty, 
+        // copy the baked-in file there so it's ready for the user and persists UI changes.
+        try
+        {
+            var dir = Path.GetDirectoryName(_configPath);
+            if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir)) Directory.CreateDirectory(dir);
+
+            if (_configPath == persistentPath && !File.Exists(_configPath) && File.Exists(bakedInPath))
+            {
+                _logger.LogInformation("Initializing persistent config from baked-in template: {Path}", bakedInPath);
+                File.Copy(bakedInPath, _configPath);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to initialize persistent config file.");
+        }
     }
 
     public string GetConfigPath() => _configPath;

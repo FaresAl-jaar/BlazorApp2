@@ -12,6 +12,8 @@ public interface IErrorLogService
     Task<List<ErrorLog>> GetRecentErrorsAsync(int count = 50);
     Task<List<ErrorLog>> GetErrorsByDateRangeAsync(DateTime from, DateTime to);
     Task<int> ClearOldLogsAsync(int daysToKeep = 30);
+    Task<bool> DeleteLogAsync(int id);
+    Task ClearAllLogsAsync();
 }
 
 public class ErrorLogService : IErrorLogService
@@ -124,5 +126,21 @@ public class ErrorLogService : IErrorLogService
         await _context.SaveChangesAsync();
 
         return oldLogs.Count;
+    }
+
+    public async Task<bool> DeleteLogAsync(int id)
+    {
+        var log = await _context.ErrorLogs.FindAsync(id);
+        if (log == null) return false;
+
+        _context.ErrorLogs.Remove(log);
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task ClearAllLogsAsync()
+    {
+        _context.ErrorLogs.RemoveRange(_context.ErrorLogs);
+        await _context.SaveChangesAsync();
     }
 }

@@ -1,0 +1,11 @@
+**/.vs
+**/bin
+**/obj
+**/data
+**/wwwroot/uploads
+.git
+.gitignore
+.dockerignore
+Dockerfile
+docker-compose.yml
+node_modules

@@ -20,7 +20,10 @@
                 <i class="bi bi-arrow-clockwise me-1"></i>Aktualisieren
             </button>
             <button class="btn btn-outline-danger" @onclick="ClearOldLogs">
-                <i class="bi bi-trash me-1"></i>Alte Logs l�schen
+                <i class="bi bi-trash me-1"></i>Alte Logs löschen
+            </button>
+            <button class="btn btn-danger" @onclick="ClearAllLogs">
+                <i class="bi bi-trash-fill me-1"></i>Alle löschen
             </button>
         </div>
     </div>
@@ -68,14 +71,14 @@
         <div class="text-center py-5">
             <i class="bi bi-check-circle text-success" style="font-size: 4rem;"></i>
             <h4 class="mt-3">Keine Fehler gefunden</h4>
-            <p class="text-muted">Das System l�uft einwandfrei.</p>
+            <p class="text-muted">Das System läuft einwandfrei.</p>
         </div>
     }
     else
     {
         <div class="card shadow-sm">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <span><strong>@logs.Count</strong> Eintr�ge</span>
+                <span><strong>@logs.Count</strong> Einträge</span>
             </div>
             <div class="table-responsive">
                 <table class="table table-hover mb-0">
@@ -85,7 +88,7 @@
                             <th style="width: 80px;">Level</th>
                             <th style="width: 150px;">Quelle</th>
                             <th>Nachricht</th>
-                            <th style="width: 100px;">Aktionen</th>
+                            <th style="width: 120px;">Aktionen</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -117,10 +120,13 @@
                                     </button>
                                     @if (!string.IsNullOrEmpty(log.StackTrace))
                                     {
-                                        <button class="btn btn-sm btn-outline-secondary" @onclick="() => ShowStackTrace(log)" title="Stack Trace">
+                                        <button class="btn btn-sm btn-outline-secondary me-1" @onclick="() => ShowStackTrace(log)" title="Stack Trace">
                                             <i class="bi bi-code-slash"></i>
                                         </button>
                                     }
+                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteLog(log.Id)" title="Löschen">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
                                 </td>
                             </tr>
                         }
@@ -164,7 +170,7 @@
                             }
                         </dl>
                         
-                        <h6>Vollstaendige Nachricht:</h6>
+                        <h6>Vollständige Nachricht:</h6>
                         <div class="bg-light p-3 rounded border" style="word-wrap: break-word; white-space: pre-wrap;">
                             @selectedLog.Message
                         </div>
@@ -240,10 +246,42 @@
 
     private async Task ClearOldLogs()
     {
+        if (!await JS.InvokeAsync<bool>("confirm", "Möchten Sie wirklich alle Logs löschen, die älter als 30 Tage sind?"))
+            return;
+
         var count = await ErrorLogService.ClearOldLogsAsync(30);
-        statusMessage = $"{count} alte Logs wurden gel�scht.";
+        statusMessage = $"{count} alte Logs wurden gelöscht.";
         isError = false;
         await LoadLogs();
+    }
+
+    private async Task ClearAllLogs()
+    {
+        if (!await JS.InvokeAsync<bool>("confirm", "Möchten Sie wirklich ALLE Logs unwiderruflich löschen?"))
+            return;
+
+        await ErrorLogService.ClearAllLogsAsync();
+        statusMessage = "Alle Logs wurden gelöscht.";
+        isError = false;
+        await LoadLogs();
+    }
+
+    private async Task DeleteLog(int id)
+    {
+        if (!await JS.InvokeAsync<bool>("confirm", "Diesen Log-Eintrag wirklich löschen?"))
+            return;
+
+        if (await ErrorLogService.DeleteLogAsync(id))
+        {
+            statusMessage = "Eintrag wurde gelöscht.";
+            isError = false;
+            await LoadLogs();
+        }
+        else
+        {
+            statusMessage = "Fehler beim Löschen des Eintrags.";
+            isError = true;
+        }
     }
 
     private void ShowDetails(ErrorLog log)

@@ -2,18 +2,20 @@ version: '3.8'
 
 services:
   pdf-manager:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: fares043/pdf-managerihk:1.0
     ports:
-      - "8086:8080"
+      - "${PORT:-8086}:8080"
     volumes:
       - ./data:/app/data
-      - ./BlazorApp2/Config:/app/Config
+      - ./config:/app/Config
     environment:
-      ASPNETCORE_ENVIRONMENT: Production
-      ConnectionStrings__DefaultConnection: "Data Source=/app/data/pdfmanager.db"
-      LobsterApi__BaseUrl: "${LOBSTER_API_URL:-https://your-lobster-api.example.com}"
-      LobsterApi__SubmitEndpoint: "/api/documents/upload"
-      LobsterApi__ApiKey: "${LOBSTER_API_KEY:-}"
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Data Source=/app/data/pdfmanager.db
+      - LobsterApi__BaseUrl=${LOBSTER_BASE_URL:-http://pdlobapp99/dw/Request/}
+      - LobsterApi__SubmitEndpoint=${LOBSTER_SUBMIT_PATH:-/api/documents/upload}
+      - LobsterApi__ApiKey=${LOBSTER_API_KEY:-}
+      - IncomingApi__DockerEndpoint=${INCOMING_API_ENDPOINT:-http://FRDTESTLXSRV:8086/api/documents/receive}
+      - PdfPlumber__Enabled=true
+      - PdfPlumber__PythonPath=python3
+      - PdfPlumber__ScriptPath=/app/Python/processor.py
     restart: unless-stopped

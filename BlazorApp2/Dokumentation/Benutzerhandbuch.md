@@ -14,29 +14,29 @@
 ## 1. Erste Schritte
 
 ### Anmeldung
-1. Öffnen Sie die Anwendung im Browser
-2. Geben Sie Benutzername und Passwort ein
-3. Klicken Sie auf "Anmelden"
+1. Ã–ffnen Sie die Anwendung im Browser.
+2. Geben Sie Benutzername und Passwort ein.
+3. Klicken Sie auf "Anmelden".
 
 ### Standard-Admin-Account
 - **Benutzername:** admin
 - **Passwort:** [Vom Administrator festgelegt]
 
 ### Dark Mode
-Klicken Sie auf das Mond-Symbol (??) in der oberen rechten Ecke, um zwischen Hell- und Dunkelmodus zu wechseln.
+Klicken Sie auf das Mond-Symbol (ğŸŒ™) in der oberen rechten Ecke, um zwischen Hell- und Dunkelmodus zu wechseln.
 
 ---
 
 ## 2. Dashboard
 
-Das Dashboard zeigt eine Übersicht über:
+Das Dashboard zeigt eine Ãœbersicht Ã¼ber:
 - **Gesamtzahl Dokumente** - Alle empfangenen PDFs
 - **In Bearbeitung** - Noch nicht abgeschlossene Dokumente
-- **Abgeschlossen** - Validierte und übermittelte Dokumente
+- **Abgeschlossen** - Validierte und Ã¼bermittelte Dokumente
 - **Fehler** - Dokumente mit Verarbeitungsfehlern
 
 ### Schnellaktionen
-- **Dokumente ansehen** - Zur Dokumentenübersicht
+- **Dokumente ansehen** - Zur DokumentenÃ¼bersicht
 - **Neues Dokument** - Manueller Upload (falls aktiviert)
 
 ---
@@ -48,9 +48,9 @@ Die Tabelle zeigt alle empfangenen Dokumente mit:
 - ID und Externe ID
 - Dateiname
 - Empfangsdatum
-- Status (Empfangen, Extrahiert, Geprüft, etc.)
+- Status (Empfangen, Extrahiert, GeprÃ¼ft, etc.)
 - Aktueller Bearbeiter
-- Verfügbarkeit der JSON-Daten
+- VerfÃ¼gbarkeit der JSON-Daten
 
 ### Filter und Suche
 - **Status-Filter:** Dropdown zur Filterung nach Status
@@ -60,15 +60,15 @@ Die Tabelle zeigt alle empfangenen Dokumente mit:
 
 | Symbol | Aktion | Beschreibung |
 |--------|--------|--------------|
-| ? | Übernehmen | Dokument zur Bearbeitung reservieren |
-| ? (gefüllt) | Freigeben | Reservierung aufheben |
-| ?? | Bearbeiten | Dokumenteneditor öffnen |
-| ??? | Ansehen | Nur-Lesen-Modus |
-| ?? | Download | JSON herunterladen |
-| ??? | Löschen | Dokument entfernen |
+| ğŸ”’ | Ãœbernehmen | Dokument zur Bearbeitung reservieren |
+| ğŸ”“ | Freigeben | Reservierung aufheben |
+| âœï¸ | Bearbeiten | Dokumenteneditor Ã¶ffnen |
+| ğŸ‘ï¸ | Ansehen | Nur-Lesen-Modus |
+| â¬‡ï¸ | Download | JSON herunterladen |
+| ğŸ—‘ï¸ | LÃ¶schen | Dokument entfernen |
 
 ### JSON-Export
-Über den Button "JSON Export" können Sie:
+Ãœber den Button "JSON Export" kÃ¶nnen Sie:
 - **Alle als ZIP** - Alle Dokumente mit JSON-Daten
 - **Gefilterte als ZIP** - Nur aktuell angezeigte Dokumente
 
@@ -82,9 +82,9 @@ Der Editor ist zweigeteilt:
 - **Rechts:** JSON-Editor mit den extrahierten Daten
 
 ### JSON bearbeiten
-1. Klicken Sie in das JSON-Textfeld
-2. Bearbeiten Sie die Werte direkt
-3. Klicken Sie auf "Speichern" (??)
+1. Klicken Sie in das JSON-Textfeld.
+2. Bearbeiten Sie die Werte direkt.
+3. Klicken Sie auf "Speichern" (ğŸ’¾).
 
 ### Wichtige JSON-Felder
 
@@ -98,16 +98,16 @@ Der Editor ist zweigeteilt:
   "Fahrzeug": "Q12345 (AB-CD 1234)",
   "Anhaenger": "Q67890 (EF-GH 5678)",
   "Fahrer": "Max Mustermann",
-  "Adresse": "Musterstraße 1, 12345 Musterstadt",
+  "Adresse": "MusterstraÃŸe 1, 12345 Musterstadt",
   "GeplanteLieferung": "2026/02/10, 08:00",
   "StoppInfos": {
     "TatsAnkunft": "2026/02/10, 08:15",
     "Lieferzeit": "00:30",
-    "LeistungPuenktlichkeit": "Pünktlich (00:15)"
+    "LeistungPuenktlichkeit": "PÃ¼nktlich (00:15)"
   },
   "Temperaturen": [
-    {"Kammer": "FR", "Wert": "2.00°C"},
-    {"Kammer": "TK", "Wert": "-21.00°C"}
+    {"Kammer": "FR", "Wert": "2.00Â°C"},
+    {"Kammer": "TK", "Wert": "-21.00Â°C"}
   ],
   "WarenGesamt": {
     "AnzArtikel": 50,
@@ -118,23 +118,24 @@ Der Editor ist zweigeteilt:
 
 ### An API senden
 Nach der Validierung:
-1. Klicken Sie auf "An Lobster senden" (??)
-2. Bestätigen Sie die Übermittlung
-3. Status wechselt zu "Übermittelt"
+1. Klicken Sie auf "An Lobster senden" (ğŸš€).
+2. BestÃ¤tigen Sie die Ãœbermittlung.
+3. Die Daten werden als JSON-Datei (`OriginalName.json`) an den konfigurierten Lobster-Endpunkt gesendet.
+4. Status wechselt zu "Ãœbermittelt".
 
 ---
 
 ## 5. OCR-Konfiguration
 
 ### Zugriff
-Navigation ? OCR-Konfiguration (nur für Administratoren)
+Navigation â†’ OCR-Konfiguration (nur fÃ¼r Administratoren)
 
 ### Aufbau der Konfiguration
 
 ```json
 {
   "Vehicle": {
-    "PlatePatterns": ["Regex für Kennzeichen"],
+    "PlatePatterns": ["Regex fÃ¼r Kennzeichen"],
     "Keywords": ["Fahrzeug", "Pojazd"]
   },
   "Driver": {
@@ -150,36 +151,36 @@ Navigation ? OCR-Konfiguration (nur für Administratoren)
 ```
 
 ### Regex-Pattern bearbeiten
-1. Navigieren Sie zur gewünschten Sektion
-2. Bearbeiten Sie das Pattern (Regex-Syntax)
-3. Klicken Sie auf "Speichern"
-4. Testen Sie mit einem neuen PDF
+1. Navigieren Sie zur gewÃ¼nschten Sektion.
+2. Bearbeiten Sie das Pattern (Regex-Syntax).
+3. Klicken Sie auf "Speichern".
+4. Testen Sie mit einem neuen PDF.
 
-### Zurücksetzen
-Klicken Sie auf "Auf Standard zurücksetzen" um die Originalkonfiguration wiederherzustellen.
+### ZurÃ¼cksetzen
+Klicken Sie auf "Auf Standard zurÃ¼cksetzen" um die Originalkonfiguration wiederherzustellen.
 
 ---
 
 ## 6. Benutzerverwaltung
 
 ### Benutzer anlegen (Admin)
-1. Navigation ? Benutzerverwaltung
-2. Klicken Sie auf "Neuer Benutzer"
-3. Füllen Sie das Formular aus
-4. Wählen Sie die Rolle (User/Admin)
-5. Speichern
+1. Navigation â†’ Benutzerverwaltung.
+2. Klicken Sie auf "Neuer Benutzer".
+3. FÃ¼llen Sie das Formular aus.
+4. WÃ¤hlen Sie die Rolle (User/Admin).
+5. Speichern.
 
 ### Rollen
 
 | Rolle | Berechtigungen |
 |-------|----------------|
 | User | Dokumente ansehen, bearbeiten, senden |
-| Admin | Alle Funktionen + Benutzerverwaltung + Löschen |
+| Admin | Alle Funktionen + Benutzerverwaltung + LÃ¶schen |
 
-### Passwort ändern
-1. Navigation ? Profil
-2. Neues Passwort eingeben
-3. Bestätigen und Speichern
+### Passwort Ã¤ndern
+1. Navigation â†’ Profil.
+2. Neues Passwort eingeben.
+3. BestÃ¤tigen und Speichern.
 
 ---
 
@@ -188,6 +189,7 @@ Klicken Sie auf "Auf Standard zurücksetzen" um die Originalkonfiguration wiederh
 ### Endpunkte
 
 #### PDF hochladen (einzeln)
+Verwenden Sie diesen Endpunkt fÃ¼r manuelle Uploads oder Tests.
 ```
 POST /api/documents/upload
 Content-Type: multipart/form-data
@@ -196,18 +198,8 @@ file: [PDF-Datei]
 sourceSystem: "MeinSystem"
 ```
 
-#### PDF hochladen (mehrere)
-```
-POST /api/documents/upload-batch
-Content-Type: multipart/form-data
-
-files: [PDF-Datei 1]
-files: [PDF-Datei 2]
-files: [PDF-Datei 3]
-sourceSystem: "BatchUpload"
-```
-
-#### PDF als Base64
+#### PDF als Base64 (JSON)
+Verwenden Sie diesen Endpunkt fÃ¼r die Anbindung an Lobster/Externe Systeme.
 ```
 POST /api/documents/receive
 Content-Type: application/json
@@ -220,6 +212,13 @@ Content-Type: application/json
 }
 ```
 
+#### LÃ¶schen (Admin)
+```
+DELETE /api/documents/{id}
+DELETE /api/documents/all
+DELETE /api/documents/extracted-data/all
+```
+
 ### Antwort
 ```json
 {
@@ -230,30 +229,25 @@ Content-Type: application/json
 }
 ```
 
-### Postman Collection
-Eine Postman-Collection für alle API-Endpunkte finden Sie unter:
-`/Dokumentation/API_Collection.json`
-
 ---
 
-## Häufige Probleme
+## HÃ¤ufige Probleme
 
 ### PDF wird nicht verarbeitet
-- Prüfen Sie, ob Python korrekt installiert ist
-- Prüfen Sie die Logs unter "Fehlerprotokolle"
-- Stellen Sie sicher, dass die PDF Textebenen enthält
+- PrÃ¼fen Sie, ob Python korrekt installiert ist.
+- PrÃ¼fen Sie die Logs unter "Fehlerprotokolle".
+- Stellen Sie sicher, dass die PDF Textebenen enthÃ¤lt.
 
 ### Umlaute werden nicht erkannt
-- Das System verwendet UTF-8
-- Prüfen Sie die Quell-PDF auf korrekte Kodierung
+- Das System verwendet UTF-8.
+- PrÃ¼fen Sie die Quell-PDF auf korrekte Kodierung.
 
 ### Verbindung unterbrochen
-- Blazor Server benötigt eine aktive Verbindung
-- Bei Trennung erscheint ein Reconnect-Dialog
-- Warten Sie oder laden Sie die Seite neu
+- Blazor Server benÃ¶tigt eine aktive Verbindung.
+- Bei Trennung erscheint ein Reconnect-Dialog.
+- Warten Sie oder laden Sie die Seite neu.
 
 ---
 
-**Support:** [support@example.com]
 **Version:** 1.0
 **Stand:** Februar 2026

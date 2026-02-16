@@ -306,6 +306,17 @@ public class DocumentsController : ControllerBase
     }
 
     /// <summary>
+    /// Loescht alle extrahierten JSON-Daten (nur Admin)
+    /// </summary>
+    [HttpDelete("extracted-data/all")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> DeleteAllExtractedData()
+    {
+        var count = await _documentService.DeleteAllExtractedDataAsync();
+        return Ok(new { Message = $"{count} JSON-Datensaetze wurden geloescht." });
+    }
+
+    /// <summary>
     /// Prüft die API-Verbindung
     /// </summary>
     [HttpGet("health/api")]

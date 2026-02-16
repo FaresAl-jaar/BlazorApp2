@@ -9,13 +9,13 @@ Ein webbasiertes System zur automatischen Verarbeitung und Verwaltung von PDF-Li
 
 ## Features
 
-- ?? **PDF-Upload** - Einzeln oder als Batch über REST-API
+- ?? **PDF-Upload** - Einzeln oder als Batch Ã¼ber REST-API
 - ?? **Automatische Datenextraktion** - Python-basierte Textextraktion mit konfigurierbaren Regex-Pattern
 - ?? **Web-Editor** - PDF-Vorschau + JSON-Editor zur Datenvalidierung
 - ?? **Benutzerverwaltung** - Rollen-basierte Zugriffskontrolle (Admin/User)
 - ?? **API-Export** - Validierte Daten an externe Systeme senden
 - ?? **Dark Mode** - Augenfreundliche Dunkelansicht
-- ?? **Mehrsprachig** - Konfigurierbare Keywords für DE/PL/EN
+- ?? **Mehrsprachig** - Konfigurierbare Keywords fÃ¼r DE/PL/EN
 
 ## Technologie-Stack
 
@@ -33,7 +33,7 @@ Ein webbasiertes System zur automatischen Verarbeitung und Verwaltung von PDF-Li
 
 - .NET 10 SDK
 - Python 3.11+
-- Node.js (optional, für CSS-Build)
+- Node.js (optional, fÃ¼r CSS-Build)
 
 ### Installation
 
@@ -42,10 +42,10 @@ Ein webbasiertes System zur automatischen Verarbeitung und Verwaltung von PDF-Li
 git clone https://github.com/[username]/BlazorApp2.git
 cd BlazorApp2
 
-# Python-Abhängigkeiten installieren
+# Python-AbhÃ¤ngigkeiten installieren
 pip install pdfplumber
 
-# .NET-Abhängigkeiten wiederherstellen
+# .NET-AbhÃ¤ngigkeiten wiederherstellen
 dotnet restore
 
 # Anwendung starten
@@ -91,20 +91,32 @@ Die Anwendung ist unter `http://localhost:8080` erreichbar.
 
 ### OCR-Konfiguration
 
-Die Regex-Pattern für die Datenextraktion können über die Web-UI unter "OCR-Konfiguration" angepasst werden.
+Die Regex-Pattern fÃ¼r die Datenextraktion kÃ¶nnen Ã¼ber die Web-UI unter "OCR-Konfiguration" angepasst werden.
 
 ## API-Endpunkte
 
+### Incoming (Empfang von Daten)
 | Methode | Endpoint | Beschreibung |
 |---------|----------|--------------|
+| POST | `/api/documents/receive` | PDF als JSON mit Base64Content empfangen |
 | POST | `/api/documents/upload` | PDF hochladen (multipart/form-data) |
-| POST | `/api/documents/upload-batch` | Mehrere PDFs hochladen |
-| POST | `/api/documents/receive` | PDF als Base64 empfangen |
+
+### Outgoing (Export an externe Systeme)
+| Methode | Endpoint | Beschreibung |
+|---------|----------|--------------|
+| POST | `/api/documents/upload` | Extrahierten Daten als .json Datei an Lobster senden (Ã¼ber LobsterApiService) |
+
+### Weitere Endpunkte
+| Methode | Endpoint | Beschreibung |
+|---------|----------|--------------|
 | GET | `/api/documents` | Alle Dokumente auflisten |
 | GET | `/api/documents/{id}/pdf` | PDF herunterladen |
 | GET | `/api/documents/{id}/extracted-data` | Extrahierte JSON-Daten |
 | PUT | `/api/documents/{id}/extracted-data` | JSON-Daten speichern |
-| POST | `/api/documents/{id}/submit` | An externe API senden |
+| POST | `/api/documents/{id}/submit` | Einzelnes Dokument an externe API senden |
+| DELETE | `/api/documents/{id}` | Dokument lÃ¶schen (Admin) |
+| DELETE | `/api/documents/all` | Alle Dokumente lÃ¶schen (Admin) |
+| DELETE | `/api/documents/extracted-data/all` | Alle JSON-Daten lÃ¶schen (Admin) |
 
 ## Projektstruktur
 
@@ -129,8 +141,8 @@ BlazorApp2/
 
 ## Lizenz
 
-Dieses Projekt ist für interne Nutzung bestimmt.
+Dieses Projekt ist fÃ¼r interne Nutzung bestimmt.
 
 ## Autor
 
-[Dein Name] - IHK Abschlussprojekt 2026
+Fares Al-jaar - IHK Abschlussprojekt 2026

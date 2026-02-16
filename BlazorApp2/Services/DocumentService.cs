@@ -21,6 +21,7 @@ public interface IDocumentService
     Task<SubmitDataResponse> SubmitToExternalApiAsync(int documentId);
     Task<bool> DeleteDocumentAsync(int id);
     Task<int> DeleteAllDocumentsAsync();
+    Task<int> DeleteAllExtractedDataAsync();
     Task<bool> CheckApiConnectionAsync();
     Task<bool> ClaimDocumentAsync(int documentId, string userId, string userName);
     Task<bool> UnclaimDocumentAsync(int documentId, string userId);
@@ -388,7 +389,7 @@ private static string ComputeFileHash(byte[] fileContent)
             };
         }
 
-        var result = await _lobsterApi.SubmitDataAsync(document.ExternalId, extractedData.JsonContent);
+        var result = await _lobsterApi.SubmitDataAsync(document.ExternalId, extractedData.JsonContent, document.FileName);
 
         if (result.Success)
         {
@@ -450,7 +451,25 @@ private static string ComputeFileHash(byte[] fileContent)
         _context.PdfDocuments.RemoveRange(_context.PdfDocuments);
         await _context.SaveChangesAsync();
         
-        _logger.LogWarning("Alle {Count} Dokumente wurden gelöscht", count);
+        _logger.LogWarning("Alle {Count} Dokumente wurden gelï¿½scht", count);
+        return count;
+    }
+
+    public async Task<int> DeleteAllExtractedDataAsync()
+    {
+        var count = await _context.ExtractedData.CountAsync();
+        _context.ExtractedData.RemoveRange(_context.ExtractedData);
+
+        var documents = await _context.PdfDocuments.ToListAsync();
+        foreach (var document in documents)
+        {
+            document.Status = DocumentStatus.Received;
+            document.ProcessedAt = null;
+        }
+
+        await _context.SaveChangesAsync();
+
+        _logger.LogWarning("Alle {Count} JSON-Daten wurden geloescht", count);
         return count;
     }
 
@@ -476,7 +495,7 @@ private static string ComputeFileHash(byte[] fileContent)
         
         await _context.SaveChangesAsync();
         
-        _logger.LogInformation("Dokument {Id} wurde von {UserName} übernommen", documentId, userName);
+        _logger.LogInformation("Dokument {Id} wurde von {UserName} ï¿½bernommen", documentId, userName);
         await _hubContext.Clients.All.SendAsync("DocumentStatusChanged", documentId, "Claimed");
         
         return true;

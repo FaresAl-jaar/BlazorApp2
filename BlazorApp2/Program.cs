@@ -54,7 +54,7 @@ builder.Services.AddSingleton<IPdfPlumberService, PdfPlumberService>();
 builder.Services.AddHttpClient<ILobsterApiService, LobsterApiService>();
 
 // Background Service for automatic PDF processing
-builder.Services.AddHostedService<AutoProcessingService>();
+// builder.Services.AddHostedService<AutoProcessingService>();
 
 // Controllers for API endpoints (including Auth)
 builder.Services.AddControllers();

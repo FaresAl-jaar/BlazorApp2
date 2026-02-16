@@ -4,7 +4,7 @@ namespace BlazorApp2.Services;
 
 public interface ILobsterApiService
 {
-    Task<SubmitDataResponse> SubmitDataAsync(string externalId, string jsonContent);
+    Task<SubmitDataResponse> SubmitDataAsync(string externalId, string jsonContent, string fileName);
     Task<bool> CheckConnectionAsync();
 }
 
@@ -23,32 +23,34 @@ public class LobsterApiService : ILobsterApiService
         _configuration = configuration;
         _logger = logger;
         
-        // Add API Key header for Postman Mock Server
+        
         var apiKey = _configuration["LobsterApi:ApiKey"];
-        if (!string.IsNullOrEmpty(apiKey) && apiKey != "YOUR_POSTMAN_API_KEY")
+        if (!string.IsNullOrEmpty(apiKey) && apiKey != "MY_POSTMAN_API_KEY")
         {
             _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("x-api-key", apiKey);
         }
     }
 
-    public async Task<SubmitDataResponse> SubmitDataAsync(string externalId, string jsonContent)
+    public async Task<SubmitDataResponse> SubmitDataAsync(string externalId, string jsonContent, string fileName)
     {
         try
         {
-            var baseUrl = _configuration["LobsterApi:BaseUrl"];
-            var endpoint = _configuration["LobsterApi:SubmitEndpoint"] ?? "/api/documents/upload";
-            var fullUrl = $"{baseUrl}{endpoint}";
+            var baseUrl = _configuration["LobsterApi:BaseUrl"]?.TrimEnd('/');
+            var endpoint = _configuration["LobsterApi:SubmitEndpoint"]?.TrimStart('/');
+            var fullUrl = $"{baseUrl}/{endpoint}";
 
-            _logger.LogInformation("Sende Daten an API: {Url}, ExternalId: {ExternalId}", fullUrl, externalId);
+            // Create multipart content
+            using var content = new MultipartFormDataContent();
+            
+            // Send as a form field named "file" (matches Lobster "Multipart FileKey: file")
+            // using text/plain to ensure it's treated as a string content
+            var fileContent = new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json");
+            
+            // We use the original filename but change extension to .json for the export
+            var exportFileName = Path.ChangeExtension(fileName, ".json");
+            content.Add(fileContent, "file", exportFileName);
 
-            var payload = new
-            {
-                externalId,
-                data = jsonContent,
-                submittedAt = DateTime.UtcNow
-            };
-
-            var response = await _httpClient.PostAsJsonAsync(fullUrl, payload);
+            var response = await _httpClient.PostAsync(fullUrl, content);
             var responseContent = await response.Content.ReadAsStringAsync();
 
             if (response.IsSuccessStatusCode)
@@ -66,7 +68,7 @@ public class LobsterApiService : ILobsterApiService
             var errorMessage = $"API-Fehler {(int)response.StatusCode} ({response.StatusCode}): {responseContent}";
             _logger.LogWarning("Lobster API Fehler: {Error}", errorMessage);
 
-            // Check for common Postman Mock errors
+            
             if (responseContent.Contains("mockRequestNotFoundError"))
             {
                 errorMessage = "Mock API: Kein Example Response definiert. Bitte in Postman ein Example fuer diesen Request erstellen.";
@@ -112,12 +114,12 @@ public class LobsterApiService : ILobsterApiService
             
             _logger.LogInformation("Pruefe Verbindung zu: {Url}", checkUrl);
             
-            // Try a simple GET
+            
             using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
             var response = await _httpClient.GetAsync(checkUrl, cts.Token);
             
             _logger.LogInformation("API-Antwort: {StatusCode}", response.StatusCode);
-            // Any response (even 404) means the server is reachable
+            
             return true;
         }
         catch (TaskCanceledException)

@@ -6,16 +6,16 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      - "8086:8086"
     volumes:
       - pdf-data:/app/data
       - ./BlazorApp2/Config:/app/Config
     environment:
-      - ASPNETCORE_ENVIRONMENT=Production
-      - ConnectionStrings__DefaultConnection=Data Source=/app/data/pdfmanager.db
-      - LobsterApi__BaseUrl=${LOBSTER_API_URL:-https://your-lobster-api.example.com}
-      - LobsterApi__SubmitEndpoint=/api/documents/upload
-      - LobsterApi__ApiKey=${LOBSTER_API_KEY:-}
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: "Data Source=/app/data/pdfmanager.db"
+      LobsterApi__BaseUrl: "${LOBSTER_API_URL:-https://your-lobster-api.example.com}"
+      LobsterApi__SubmitEndpoint: "/api/documents/upload"
+      LobsterApi__ApiKey: "${LOBSTER_API_KEY:-}"
     restart: unless-stopped
 
 volumes:

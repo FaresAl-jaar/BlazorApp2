@@ -6,9 +6,9 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8086:8086"
+      - "8086:8080"
     volumes:
-      - pdf-data:/app/data
+      - ./data:/app/data
       - ./BlazorApp2/Config:/app/Config
     environment:
       ASPNETCORE_ENVIRONMENT: Production
@@ -17,6 +17,3 @@ services:
       LobsterApi__SubmitEndpoint: "/api/documents/upload"
       LobsterApi__ApiKey: "${LOBSTER_API_KEY:-}"
     restart: unless-stopped
-
-volumes:
-  pdf-data:

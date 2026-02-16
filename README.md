@@ -95,16 +95,25 @@ Die Regex-Pattern für die Datenextraktion können über die Web-UI unter "OCR-K
 
 ## API-Endpunkte
 
+### Incoming (Empfang von Daten)
 | Methode | Endpoint | Beschreibung |
 |---------|----------|--------------|
+| POST | `/api/documents/receive` | PDF als JSON mit Base64Content empfangen |
 | POST | `/api/documents/upload` | PDF hochladen (multipart/form-data) |
-| POST | `/api/documents/upload-batch` | Mehrere PDFs hochladen |
-| POST | `/api/documents/receive` | PDF als Base64 empfangen |
+
+### Outgoing (Export an externe Systeme)
+| Methode | Endpoint | Beschreibung |
+|---------|----------|--------------|
+| POST | `/api/documents/upload` | Extrahierten Daten als .json Datei an Lobster senden (über LobsterApiService) |
+
+### Weitere Endpunkte
+| Methode | Endpoint | Beschreibung |
+|---------|----------|--------------|
 | GET | `/api/documents` | Alle Dokumente auflisten |
 | GET | `/api/documents/{id}/pdf` | PDF herunterladen |
 | GET | `/api/documents/{id}/extracted-data` | Extrahierte JSON-Daten |
 | PUT | `/api/documents/{id}/extracted-data` | JSON-Daten speichern |
-| POST | `/api/documents/{id}/submit` | An externe API senden |
+| POST | `/api/documents/{id}/submit` | Einzelnes Dokument an externe API senden |
 | DELETE | `/api/documents/{id}` | Dokument löschen (Admin) |
 | DELETE | `/api/documents/all` | Alle Dokumente löschen (Admin) |
 | DELETE | `/api/documents/extracted-data/all` | Alle JSON-Daten löschen (Admin) |

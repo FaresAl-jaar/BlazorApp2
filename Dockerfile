@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-preview AS base
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 WORKDIR /app
 EXPOSE 8080
 
@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/* \
     && pip3 install --break-system-packages pdfplumber
 
-FROM mcr.microsoft.com/dotnet/sdk:10.0-preview AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 COPY ["BlazorApp2/BlazorApp2.csproj", "BlazorApp2/"]
 RUN dotnet restore "BlazorApp2/BlazorApp2.csproj"
@@ -24,13 +24,14 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
-# Copy Python processor script
+# Copy Python processor script and Config
 COPY BlazorApp2/Python /app/Python
+COPY BlazorApp2/Config /app/Config
 
 # Create directories for persistence
-RUN mkdir -p /app/data /app/Config
+RUN mkdir -p /app/data
 
-ENV ASPNETCORE_URLS=http://+:8086
+ENV ASPNETCORE_URLS=http://+:8080
 ENV ConnectionStrings__DefaultConnection="Data Source=/app/data/pdfmanager.db"
 ENV OCR_CONFIG_PATH=/app/Config/ocr_config.json
 ENV PdfPlumber__Enabled=true

@@ -105,6 +105,8 @@ Die Regex-Pattern für die Datenextraktion können über die Web-UI unter "OCR-K
 | GET | `/api/documents/{id}/extracted-data` | Extrahierte JSON-Daten |
 | PUT | `/api/documents/{id}/extracted-data` | JSON-Daten speichern |
 | POST | `/api/documents/{id}/submit` | An externe API senden |
+| DELETE | /api/documents/all | Alle Dokumente löschen |
+| DELETE | /api/documents/extracted-data/all | Alle JSON-Daten löschen |
 
 ## Projektstruktur
 

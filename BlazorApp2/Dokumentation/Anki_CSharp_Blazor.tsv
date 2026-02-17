@@ -1,0 +1,20 @@
+Was bedeutet async in C#?	async markiert eine Methode als asynchron, damit sie mit await auf laufende Aufgaben warten kann, ohne den Ablauf komplett zu blockieren.
+Was ist Task?	Task ist der Rückgabetyp für asynchrone Methoden ohne direkten Rückgabewert.
+Was ist der Unterschied zwischen Task und Task<T>?	Task<T> liefert zusätzlich ein Ergebnis vom Typ T zurück, z. B. Task<bool>.
+Was macht await?	await wartet auf die Fertigstellung eines Task, ohne den Thread hart zu blockieren.
+Was sind Parameter in Methoden?	Parameter sind Eingabewerte einer Methode, z. B. int id oder string userId.
+Was ist ein optionaler Parameter?	Ein optionaler Parameter hat einen Standardwert und muss beim Aufruf nicht zwingend übergeben werden.
+Was bedeutet ? hinter einem Typ wie string??	Der Typ darf null sein.
+Was ist ein Interface?	Ein Interface definiert einen Vertrag (Methodensignaturen), aber keine konkrete Implementierung.
+Was ist Dependency Injection (DI)?	Abhängigkeiten werden zentral registriert und automatisch in Klassen bereitgestellt, z. B. über den Konstruktor.
+Wofür ist ein Controller in ASP.NET Core da?	Ein Controller verarbeitet HTTP-Anfragen und gibt API-Antworten zurück.
+Was machen Route-/HTTP-Attribute wie [Route], [HttpGet], [HttpPost]?	Sie definieren die URL-Pfade und HTTP-Methoden von Endpunkten.
+Wofür sind [FromBody], [FromForm], [FromQuery]?	Sie legen fest, aus welchem Teil der Anfrage Daten gelesen werden (Body, Formular, Querystring).
+Was macht [Parameter] in Blazor?	Es markiert eine Eigenschaft, die von außen (z. B. über die Route) an die Komponente übergeben wird.
+Was ist OnInitializedAsync() in Blazor?	Das ist eine Lifecycle-Methode, die beim Start der Komponente asynchron ausgeführt wird.
+Was ist ein SignalR Hub?	Ein Hub ermöglicht Echtzeit-Kommunikation zwischen Server und verbundenen Clients.
+Was ist die Middleware-Pipeline?	Das ist die Reihenfolge der Request-Verarbeitung in Program.cs (z. B. Authentifizierung, Autorisierung, Routing).
+Was ist Task.CompletedTask?	Ein bereits abgeschlossener Task, wenn keine echte asynchrone Arbeit anfällt.
+Was ist ein DTO?	Ein Data Transfer Object ist ein schlankes Datenobjekt zur Übertragung zwischen Schichten/API.
+Wozu dient die Service-Schicht?	Sie kapselt Geschäftslogik und hält Controller schlank.
+Wofür nutzt man IActionResult oder ActionResult<T>?	Damit kann ein Endpunkt flexibel unterschiedliche HTTP-Antworten zurückgeben, z. B. Ok, BadRequest, NotFound.

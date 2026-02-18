@@ -35,13 +35,13 @@ Entwicklung eines webbasierten PDF-Management-Systems mit folgenden Kernfunktion
 |-------|-----------|------------------|
 | 1 | Analyse und Anforderungserhebung | 8 |
 | 2 | Technische Konzeption | 6 |
-| 3 | Datenbankdesign | 4 |
+| 3 | Datenbankdesign | 14 |
 | 4 | Backend-Entwicklung (API, Services) | 15 |
 | 5 | Frontend-Entwicklung (Blazor UI) | 12 |
 | 6 | PDF-Extraktion (Python) | 10 |
 | 7 | Tests und Fehlerbehebung | 8 |
 | 8 | Deployment und Dokumentation | 7 |
-| **Gesamt** | | **70** |
+| **Gesamt** | | **80** |
 
 ---
 
